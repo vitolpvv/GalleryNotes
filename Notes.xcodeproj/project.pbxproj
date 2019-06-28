@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1B3AAE4922C68A4F00CB4D68 /* FileNotebookTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B3AAE4822C68A4F00CB4D68 /* FileNotebookTests.swift */; };
 		1BC5554822C31649002FEA0B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BC5554722C31649002FEA0B /* AppDelegate.swift */; };
 		1BC5554A22C31649002FEA0B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BC5554922C31649002FEA0B /* ViewController.swift */; };
 		1BC5554D22C31649002FEA0B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1BC5554B22C31649002FEA0B /* Main.storyboard */; };
@@ -29,6 +30,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1B3AAE4822C68A4F00CB4D68 /* FileNotebookTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileNotebookTests.swift; sourceTree = "<group>"; };
 		1BC5554422C31649002FEA0B /* Notes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Notes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1BC5554722C31649002FEA0B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1BC5554922C31649002FEA0B /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -98,6 +100,7 @@
 			isa = PBXGroup;
 			children = (
 				1BC5555C22C3164A002FEA0B /* NotesTests.swift */,
+				1B3AAE4822C68A4F00CB4D68 /* FileNotebookTests.swift */,
 				1BC5555E22C3164A002FEA0B /* Info.plist */,
 			);
 			path = NotesTests;
@@ -217,8 +220,8 @@
 				1BC5557622C33933002FEA0B /* FileNotebook.swift in Sources */,
 				1BC5554A22C31649002FEA0B /* ViewController.swift in Sources */,
 				1BC5554822C31649002FEA0B /* AppDelegate.swift in Sources */,
-				1BC5557422C33933002FEA0B /* NoteExtensions.swift in Sources */,
 				1BC5557522C33933002FEA0B /* Note.swift in Sources */,
+				1BC5557422C33933002FEA0B /* NoteExtensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -226,6 +229,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1B3AAE4922C68A4F00CB4D68 /* FileNotebookTests.swift in Sources */,
 				1BC5555D22C3164A002FEA0B /* NotesTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -418,6 +422,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = D4TAT4RD47;
 				INFOPLIST_FILE = NotesTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -438,6 +443,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = D4TAT4RD47;
 				INFOPLIST_FILE = NotesTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -533,6 +539,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = D4TAT4RD47;
 				INFOPLIST_FILE = NotesTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

@@ -10,25 +10,61 @@ import XCTest
 @testable import Notes
 
 class NotesTests: XCTestCase {
-
-    override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    
+    // Check Note uid generation
+    func testDefaultNoteUidGeneration() {
+        // Create Note with no uid provided
+        let note = Note(title: "Title", content: "Content", importance: .low, liveTill: nil)
+        // Check uid not empty
+        XCTAssertNotNil(note.uid)
+        XCTAssertGreaterThan(note.uid, "")
     }
-
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    
+    // Check default Note color
+    func testDefaultNoteColorIsWhite() {
+        // Create Note with no color provided
+        let note = Note(title: "Title", content: "Content", importance: .low, liveTill: nil)
+        // Check Note color is WHITE
+        XCTAssertEqual(note.color, UIColor.white)
     }
-
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+    
+    // Check json dictionary contains required fields (uid, title, content)
+    func testNoteJsonContainsRequiredFields() {
+        let noteJson = Note(title: "Title", content: "Content", importance: .normal, liveTill: nil).json
+        XCTAssertTrue(noteJson.keys.contains(Note.JsonKeys.uid))
+        XCTAssertTrue(noteJson.keys.contains(Note.JsonKeys.title))
+        XCTAssertTrue(noteJson.keys.contains(Note.JsonKeys.content))
     }
-
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
+    
+    // Check json dictionary have no color field if Note color is WHITE
+    func testNoteJsonMissedDefaultColor() {
+        let noteJson = Note(title: "Title", content: "Content", importance: .normal, liveTill: nil).json
+        XCTAssertFalse(noteJson.keys.contains(Note.JsonKeys.color))
+    }
+    
+    // Check json dictionary have no importance field if Note importance is NORMAL
+    func testNoteJsonMissedNormalImportance() {
+        let noteJson = Note(title: "Title", content: "Content", importance: .normal, liveTill: nil).json
+        XCTAssertFalse(noteJson.keys.contains(Note.JsonKeys.importance))
+    }
+    
+    // Check json dictionary have no liveTill field if date no provided (nil)
+    func testNoteJsonMissedDateNil() {
+        let noteJson = Note(title: "Title", content: "Content", importance: .normal, liveTill: nil).json
+        XCTAssertFalse(noteJson.keys.contains(Note.JsonKeys.liveTill))
+    }
+    
+    // Check Note -> Json -> Note conversion
+    func testNoteToJsonToNoteConversion() {
+        let note1 = Note(uid: "12345", title: "Title", content: "Content", color: UIColor.red, importance: .high, liveTill: nil)
+        let note2 = Note.parse(json: note1.json)
+        XCTAssertNotNil(note2)
+        XCTAssertEqual(note1.uid, note2?.uid)
+        XCTAssertEqual(note1.title, note2?.title)
+        XCTAssertEqual(note1.content, note2?.content)
+        XCTAssertEqual(note1.color, note2?.color)
+        XCTAssertEqual(note1.importance, note2?.importance)
+        XCTAssertEqual(note1.liveTill, note2?.liveTill)
     }
 
 }
