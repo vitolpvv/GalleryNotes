@@ -9,12 +9,15 @@
 import UIKit
 
 class ViewController: UIViewController {
-
+    
+    private var notes:[Note]?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        notes = FileNotebook().notes
+        notes?.forEach {note in
+            print(note)
+        }
     }
-
-
 }
 
