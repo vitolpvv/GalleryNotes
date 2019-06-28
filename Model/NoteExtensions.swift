@@ -6,9 +6,9 @@
 //
 import UIKit
 
-extension Note {
+public extension Note {
     // String constants
-    private enum Str {
+    enum JsonKeys {
         static let uid = "uid"
         static let title = "title"
         static let content = "content"
@@ -24,37 +24,37 @@ extension Note {
     // Create Note instance from dictionary
     static func parse(json: [String: Any]) -> Note? {
         // Check json contains required fields: uid, title, content
-        let requiredFields: Set = [Str.uid, Str.title, Str.content]
+        let requiredFields: Set = [JsonKeys.uid, JsonKeys.title, JsonKeys.content]
         guard requiredFields.isSubset(of: json.keys) else {return nil}
         
         // Parse color
         var color: UIColor
-        switch json[Str.color] {
+        switch json[JsonKeys.color] {
         case let rgba as [String: CGFloat]:
-            color = UIColor(red: rgba[Str.colorRed]!,
-                            green: rgba[Str.colorGreen]!,
-                            blue: rgba[Str.colorBlue]!,
-                            alpha: rgba[Str.colorAlpha]!)
+            color = UIColor(red: rgba[JsonKeys.colorRed]!,
+                            green: rgba[JsonKeys.colorGreen]!,
+                            blue: rgba[JsonKeys.colorBlue]!,
+                            alpha: rgba[JsonKeys.colorAlpha]!)
         default: color = UIColor.white
         }
         // Parse importance
         var importance: Importance
-        switch json[Str.importance] {
+        switch json[JsonKeys.importance] {
         case let importanceRaw as String:
             importance = Importance(rawValue: importanceRaw) ?? Importance.normal
         default: importance = Importance.normal
         }
         // Parse liveTill
         var liveTill: Date?
-        switch json[Str.liveTill] {
+        switch json[JsonKeys.liveTill] {
         case let timeInterval as TimeInterval:
             liveTill = Date(timeIntervalSince1970: timeInterval)
         default: break
         }
         
-        return Note(uid: json[Str.uid] as! String,
-                    title: json[Str.title] as! String,
-                    content: json[Str.content] as! String,
+        return Note(uid: json[JsonKeys.uid] as! String,
+                    title: json[JsonKeys.title] as! String,
+                    content: json[JsonKeys.content] as! String,
                     color: color,
                     importance: importance,
                     liveTill: liveTill)
@@ -63,17 +63,17 @@ extension Note {
     // Create dictionary of this Note instance
     var json: [String: Any] {
         // Result dict initialization with uid, title, content fields
-        var dict: [String: Any] = [Str.uid: self.uid,
-                                   Str.title: self.title,
-                                   Str.content: self.content]
+        var dict: [String: Any] = [JsonKeys.uid: self.uid,
+                                   JsonKeys.title: self.title,
+                                   JsonKeys.content: self.content]
         // Add importance if low or high
         switch self.importance {
-        case .high, .low: dict[Str.importance] = self.importance.rawValue
+        case .high, .low: dict[JsonKeys.importance] = self.importance.rawValue
         default: break
         }
         // Add date if not nil
         switch self.liveTill {
-        case let date?: dict[Str.liveTill] = date.timeIntervalSince1970
+        case let date?: dict[JsonKeys.liveTill] = date.timeIntervalSince1970
         default: break
         }
         // Add color if not white
@@ -85,10 +85,10 @@ extension Note {
             var b: CGFloat = 0
             var a: CGFloat = 0
             self.color.getRed(&r, green: &g, blue: &b, alpha: &a)
-            dict[Str.color] = [Str.colorRed: r,
-                               Str.colorGreen: g,
-                               Str.colorBlue: b,
-                               Str.colorAlpha: a]
+            dict[JsonKeys.color] = [JsonKeys.colorRed: r,
+                               JsonKeys.colorGreen: g,
+                               JsonKeys.colorBlue: b,
+                               JsonKeys.colorAlpha: a]
             }
         }
         return dict

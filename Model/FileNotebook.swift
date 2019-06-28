@@ -6,7 +6,7 @@
 //
 import UIKit
 
-class FileNotebook {
+public class FileNotebook {
     // String constants
     private enum Str {
         static let fileName = "notes.json"

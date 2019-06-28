@@ -10,14 +10,8 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    private var notes:[Note]?
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        notes = FileNotebook().notes
-        notes?.forEach {note in
-            print(note)
-        }
     }
 }
 
