@@ -29,4 +29,8 @@ public struct Note {
         self.importance = importance
         self.liveTill = liveTill
     }
+    
+    public var description: String {
+        return "Note[uid:'\(uid)', title:'\(title)', content:'\(content)', color:\(color), importance:'\(importance)', liveTill:\(String(describing: liveTill))]"
+    }
 }

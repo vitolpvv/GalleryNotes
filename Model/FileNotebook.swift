@@ -5,6 +5,7 @@
 //  Created by VitalyP on 21/06/2019.
 //
 import UIKit
+import CocoaLumberjack
 
 public class FileNotebook {
     // String constants
@@ -33,14 +34,19 @@ public class FileNotebook {
     // Add Note (Replace if Note with same uid exists)
     public func add(_ note: Note) {
         switch (notes.firstIndex(where: { $0.uid == note.uid })) {
-        case let index?: notes[index] = note
-        case .none: notes.append(note)
+        case let index?:
+            notes[index] = note
+            DDLogInfo("Note with uid=\(note.uid) replaced by \(note).")
+        case .none:
+            notes.append(note)
+            DDLogInfo("Note with uid=\(note.uid) appended.")
         }
     }
     
     // Remove Note by uid
     public func remove(with uid: String) {
         notes.removeAll(where: { $0.uid == uid })
+        DDLogInfo("Note with uid=\(uid) removed.")
     }
     
     // Get file url
@@ -64,16 +70,23 @@ public class FileNotebook {
         dict[Str.jsonRoot] = items
         
         // First: Try create json
-        // If success: Get file url
-        // If success: Check file existence and try create if not
+        // If success: Get file url, check file existence and try create if not
         // If success: Try write json to file
-        if let json = try? JSONSerialization.data(withJSONObject: dict, options: []),
-            let file = self.fileUrl(),
-            (FileManager.default.fileExists(atPath: file.path) ||
-                FileManager.default.createFile(atPath: file.path, contents: nil, attributes: nil)){
-            
-            try? json.write(to: file)
+        guard let json = try? JSONSerialization.data(withJSONObject: dict, options: []) else {
+            DDLogError("Notes save: Data serialization error.")
+            return
         }
+        guard let file = self.fileUrl(),
+            (FileManager.default.fileExists(atPath: file.path) ||
+                FileManager.default.createFile(atPath: file.path, contents: nil, attributes: nil)) else {
+                    DDLogError("Notes save: File do not accessilbe.")
+                    return
+        }
+        guard ((try? json.write(to: file)) != nil) else {
+            DDLogError("Notes save: Writing file error.")
+            return
+        }
+        DDLogInfo("Notes save: Notes saved.")
     }
     
     // Load Notes from file
@@ -82,16 +95,25 @@ public class FileNotebook {
         // If success: Try get data
         // If success: Try create json
         // If success: Parse each Note
-        if let file = self.fileUrl(),
-            let data = try? Data(contentsOf: file),
-            let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: [[String: Any]]] {
-            
-            json[Str.jsonRoot]?.forEach { item in
-                switch Note.parse(json: item) {
-                case let note?: self.add(note)
-                default: break
-                }
+        guard let file = self.fileUrl() else {
+            DDLogError("Notes load: File do not accessible.")
+            return
+        }
+        guard let data = try? Data(contentsOf: file) else {
+            DDLogError("Notes load: Reading file error.")
+            return
+        }
+        guard let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: [[String: Any]]] else {
+            DDLogError("Notes load: Data deserialization error.")
+            return
+        }
+        json[Str.jsonRoot]?.forEach { item in
+            switch Note.parse(json: item) {
+            case let note?: notes.append(note)
+            default: break
+                
             }
         }
+        DDLogInfo("Notes load: Notes loaded.")
     }
 }

@@ -5,6 +5,7 @@
 //  Created by VitalyP on 19/06/2019.
 //
 import UIKit
+import CocoaLumberjack
 
 public extension Note {
     // String constants
@@ -25,7 +26,10 @@ public extension Note {
     static func parse(json: [String: Any]) -> Note? {
         // Check json contains required fields: uid, title, content
         let requiredFields: Set = [JsonKeys.uid, JsonKeys.title, JsonKeys.content]
-        guard requiredFields.isSubset(of: json.keys) else {return nil}
+        guard requiredFields.isSubset(of: json.keys) else {
+            DDLogInfo("Note parse failed: no reuired fields (uid, title, content)")
+            return nil
+        }
         
         // Parse color
         var color: UIColor
@@ -51,13 +55,14 @@ public extension Note {
             liveTill = Date(timeIntervalSince1970: timeInterval)
         default: break
         }
-        
-        return Note(uid: json[JsonKeys.uid] as! String,
-                    title: json[JsonKeys.title] as! String,
-                    content: json[JsonKeys.content] as! String,
-                    color: color,
-                    importance: importance,
-                    liveTill: liveTill)
+        let note = Note(uid: json[JsonKeys.uid] as! String,
+                        title: json[JsonKeys.title] as! String,
+                        content: json[JsonKeys.content] as! String,
+                        color: color,
+                        importance: importance,
+                        liveTill: liveTill)
+        DDLogInfo("Note parsed: \(note)")
+        return note
     }
     
     // Create dictionary of this Note instance
