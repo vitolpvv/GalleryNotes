@@ -19,18 +19,18 @@ public struct Note {
     let content: String
     let color: UIColor
     let importance: Importance
-    let liveTill: Date?
+    let destroyDate: Date?
     
-    public init(uid: String = UUID().uuidString, title: String, content: String, color:UIColor = UIColor.white, importance: Importance, liveTill: Date?) {
+    public init(uid: String = UUID().uuidString, title: String, content: String, color:UIColor = UIColor.white, importance: Importance, destroyDate: Date?) {
         self.uid = uid
         self.title = title
         self.content = content
         self.color = color
         self.importance = importance
-        self.liveTill = liveTill
+        self.destroyDate = destroyDate
     }
     
     public var description: String {
-        return "Note[uid:'\(uid)', title:'\(title)', content:'\(content)', color:\(color), importance:'\(importance)', liveTill:\(String(describing: liveTill))]"
+        return "Note[uid:'\(uid)', title:'\(title)', content:'\(content)', color:\(color), importance:'\(importance)', destroyDate:\(String(describing: destroyDate))]"
     }
 }

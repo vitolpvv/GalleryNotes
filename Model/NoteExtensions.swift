@@ -19,7 +19,7 @@ public extension Note {
         static let colorBlue = "b"
         static let colorAlpha = "a"
         static let importance = "importance"
-        static let liveTill = "live_till"
+        static let destroyDate = "destroy_date"
     }
     
     // Create Note instance from dictionary
@@ -48,11 +48,11 @@ public extension Note {
             importance = Importance(rawValue: importanceRaw) ?? Importance.normal
         default: importance = Importance.normal
         }
-        // Parse liveTill
-        var liveTill: Date?
-        switch json[JsonKeys.liveTill] {
+        // Parse destroyDate
+        var destroyDate: Date?
+        switch json[JsonKeys.destroyDate] {
         case let timeInterval as TimeInterval:
-            liveTill = Date(timeIntervalSince1970: timeInterval)
+            destroyDate = Date(timeIntervalSince1970: timeInterval)
         default: break
         }
         let note = Note(uid: json[JsonKeys.uid] as! String,
@@ -60,7 +60,7 @@ public extension Note {
                         content: json[JsonKeys.content] as! String,
                         color: color,
                         importance: importance,
-                        liveTill: liveTill)
+                        destroyDate: destroyDate)
         DDLogInfo("Note parsed: \(note)")
         return note
     }
@@ -77,8 +77,8 @@ public extension Note {
         default: break
         }
         // Add date if not nil
-        switch self.liveTill {
-        case let date?: dict[JsonKeys.liveTill] = date.timeIntervalSince1970
+        switch self.destroyDate {
+        case let date?: dict[JsonKeys.destroyDate] = date.timeIntervalSince1970
         default: break
         }
         // Add color if not white

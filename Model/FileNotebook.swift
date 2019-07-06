@@ -20,9 +20,9 @@ public class FileNotebook {
     // Load Notes on initialization
     init() {
         #if TEMPNOTES
-        add(Note(title: "Note 1", content: "Content of note 1", importance: Note.Importance.low, liveTill: nil))
-        add(Note(title: "Note 2", content: "Content of note 2", importance: Note.Importance.low, liveTill: Date()))
-        add(Note(title: "Note 3", content: "Content of note 3", color: UIColor.yellow, importance: Note.Importance.low, liveTill: Date()))
+        add(Note(title: "Note 1", content: "Content of note 1", importance: Note.Importance.low, destroyDate: nil))
+        add(Note(title: "Note 2", content: "Content of note 2", importance: Note.Importance.low, destroyDate: Date()))
+        add(Note(title: "Note 3", content: "Content of note 3", color: UIColor.yellow, importance: Note.Importance.low, destroyDate: Date()))
         #endif
         load()
         

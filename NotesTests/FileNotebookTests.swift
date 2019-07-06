@@ -17,7 +17,7 @@ class FileNotebookTests: XCTestCase {
         // Get Notes count
         let notesInitCount = fileNotebook!.notes.count
         // Add Note
-        fileNotebook!.add(Note(title: "Title", content: "Content", importance: .normal, liveTill: nil))
+        fileNotebook!.add(Note(title: "Title", content: "Content", importance: .normal, destroyDate: nil))
         // Save Notes
         fileNotebook = nil
         // Load Notes again
@@ -34,7 +34,7 @@ class FileNotebookTests: XCTestCase {
         // Get last Note
         let noteFromStore = fileNotebook!.notes.last!
         // Add new Note with same uid
-        fileNotebook!.add(Note(uid: noteFromStore.uid, title: "New title", content: "New content", color: UIColor.red, importance: .high, liveTill: Date()))
+        fileNotebook!.add(Note(uid: noteFromStore.uid, title: "New title", content: "New content", color: UIColor.red, importance: .high, destroyDate: Date()))
         // Save Notes
         fileNotebook = nil
         // Load Notes again
