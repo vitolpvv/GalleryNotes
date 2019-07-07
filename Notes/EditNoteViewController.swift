@@ -1,13 +1,17 @@
 //
 //  EditNoteViewController.swift
-//  Notes
+//  Класс контроллера редактора заметки.
+//
+//  Работа с CoreGraphics реализована в расширении UIButton.
 //
 //  Created by VitalyP on 02/07/2019.
 //  Copyright © 2019 vitalyp. All rights reserved.
 //
 
 import UIKit
+import CocoaLumberjack
 
+// Расширение контроллера. Прячет клавиатуру при тапе в свободной области.
 extension UIViewController {
     func hideKeyboardWhenTappedAround() {
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
@@ -20,6 +24,28 @@ extension UIViewController {
     }
 }
 
+// Расширение кнопки. Рисует отметку на выбраной кнопке.
+extension UIButton {
+    open override func draw(_ rect: CGRect) {
+        super.draw(rect)
+        if isSelected {
+            let path = UIBezierPath()
+            path.lineWidth = 2
+            path.addArc(withCenter: CGPoint(x: rect.midX + rect.width / 4,y: rect.minY + rect.width / 4),
+                        radius: rect.width / 5,
+                        startAngle: 0.0,
+                        endAngle: 7 * CGFloat.pi / 4,
+                        clockwise: true)
+            path.addLine(to: CGPoint(x: rect.midX + rect.width / 4,
+                                     y: rect.minY + rect.width / 3))
+            path.addLine(to: CGPoint(x: rect.maxX - rect.width / 3,
+                                     y: rect.minY + rect.width / 5))
+            UIColor.black.setStroke()
+            path.stroke()
+        }
+    }
+}
+
 class EditNoteViewController: UIViewController {
     
     // Компоненты GUI
@@ -27,25 +53,27 @@ class EditNoteViewController: UIViewController {
     @IBOutlet weak var titleTextField: UITextField!
     @IBOutlet weak var contentTextView: UITextView!
     @IBOutlet weak var datePicker: UIDatePicker!
-    @IBOutlet weak var colorPickerButton: UIImageView!
+    @IBOutlet weak var whiteColorButton: UIButton!
+    @IBOutlet weak var redColorButton: UIButton!
+    @IBOutlet weak var greenColorButton: UIButton!
+    @IBOutlet weak var customColorButton: UIButton!
     @IBOutlet weak var colorPickerView: ColorPickerView!
     
     // Ограничения
     @IBOutlet weak var datePickerHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var colorPickerViewBottomConstraint: NSLayoutConstraint!
     
+    // Массив цветных кнопок
+    private var colorButtons = [UIButton]()
+    
     // Инициализация контроллера
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-        setKeyboardNotificationObservers()
-        hideKeyboardWhenTappedAround()
     }
     
     // Инициализация контроллера
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        setKeyboardNotificationObservers()
-        hideKeyboardWhenTappedAround()
     }
     
     // Деинициализация контроллера
@@ -57,19 +85,28 @@ class EditNoteViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        colorButtons.append(whiteColorButton)
+        colorButtons.append(redColorButton)
+        colorButtons.append(greenColorButton)
+        colorButtons.append(customColorButton)
+        
+        // При загрузке выбран белый цвет
+        whiteColorButton.isSelected = true
+        
+        // Привязка обработчика завершения выбора цвета
+        colorPickerView.doneButtonHandler = colorPickerDoneHandler
+        
+        // Настройка видимых границ
         setBorders()
         
-        let longGesture = UILongPressGestureRecognizer(target: self, action: #selector(showColorPicker))
-        longGesture.minimumPressDuration = 1
-        colorPickerButton.isUserInteractionEnabled = true
-        colorPickerButton.addGestureRecognizer(longGesture)
-//        colorPickerButton.isSelected = true
-        
-        colorPickerView.doneButtonHandler = colorPickerDoneHandler
+        // Установка обработчиков событий клавиатуры
+        setKeyboardNotificationObservers()
+        hideKeyboardWhenTappedAround()
     }
     
     // Обработка переключателя UseDestroyDate
     @IBAction func destroyDateSwitchToggled(_ sender: UISwitch) {
+        view.endEditing(true)
         switch sender.isOn {
         case true: datePickerHeightConstraint.constant = datePicker.intrinsicContentSize.height
         default: datePickerHeightConstraint.constant = 0
@@ -90,11 +127,48 @@ class EditNoteViewController: UIViewController {
         contentTextView.layer.borderColor = borderColor
         contentTextView.layer.cornerRadius = cornerRadius
         
-        colorPickerButton.layer.borderWidth = borderWidth
-        colorPickerButton.layer.borderColor = borderColor
+        whiteColorButton.layer.borderWidth = borderWidth
+        whiteColorButton.layer.borderColor = borderColor
+        redColorButton.layer.borderWidth = borderWidth
+        redColorButton.layer.borderColor = borderColor
+        greenColorButton.layer.borderWidth = borderWidth
+        greenColorButton.layer.borderColor = borderColor
+        customColorButton.layer.borderWidth = borderWidth
+        customColorButton.layer.borderColor = borderColor
     }
     
-    // Обработка появления/скрытия клавиатуры
+    // Обработчик нажатия на цветные кнопки
+    @IBAction
+    private func colorButtonTapped(_ sender: UIButton) {
+        // Исключение выбора последней кнопки, если цвет не выбран
+        guard sender != customColorButton || colorPickerView.currentColor != nil else {
+            return
+        }
+        colorButtons.filter({button in button != sender}).forEach({button in button.isSelected = false})
+        sender.isSelected = true
+    }
+    
+    // Показать ColorPicker
+    @IBAction
+    private func showColorPicker() {
+        view.endEditing(true)
+        scrollView.isHidden = true
+        colorPickerView.isHidden = false
+    }
+    
+    // Обработчик завершения выбора цвета
+    private func colorPickerDoneHandler() {
+        colorPickerView.isHidden = true
+        scrollView.isHidden = false
+        guard colorPickerView.currentColor != nil else {
+            return
+        }
+        customColorButton.setBackgroundImage(nil, for: .normal)
+        customColorButton.backgroundColor = colorPickerView.currentColor
+        colorButtonTapped(customColorButton)
+    }
+    
+    // Установка обработки появления/скрытия клавиатуры
     private func setKeyboardNotificationObservers() {
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(keyboardWillShow),
@@ -106,6 +180,7 @@ class EditNoteViewController: UIViewController {
                                                object: nil)
     }
     
+    // Удаление обработки появления/скрытия клавиатуры
     private func removeKeyboardNotificationObservers() {
         NotificationCenter.default.removeObserver(self,
                                                   name: UIResponder.keyboardDidShowNotification,
@@ -134,36 +209,4 @@ class EditNoteViewController: UIViewController {
         scrollView.contentInset.bottom = .zero
         colorPickerViewBottomConstraint.constant = 8
     }
-    
-    // Показать выбор цвета
-    @objc private func showColorPicker() {
-        colorPickerView.isHidden = false
-    }
-    
-    // Обработчик завершения выбора цвета
-    private func colorPickerDoneHandler() {
-        colorPickerView.isHidden = true
-        colorPickerButton.image = nil
-        colorPickerButton.backgroundColor = colorPickerView.currentColor
-    }
 }
-
-//@IBDesignable
-//class SelectableView: UIImageView{
-//    
-//    var isSelected: Bool = false {
-//        didSet{
-//            setNeedsDisplay()
-//        }
-//    }
-//    
-//    override func draw(_ rect: CGRect) {
-//        if isSelected {
-//            let context = UIGraphicsGetCurrentContext()!
-//            context.setStrokeColor(UIColor.white.cgColor)
-//            context.setFillColor(UIColor.black.cgColor)
-//            context.addArc(center: CGPoint(x: rect.midX + rect.width / 4, y: rect.minY + rect.width / 4), radius: rect.width / 4, startAngle: 0, endAngle: 315, clockwise: true)
-//            context.addLine(to: CGPoint(x: rect.midX + rect.width / 4, y: rect.minY + rect.width / 4))
-//        }
-//    }
-//}

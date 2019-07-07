@@ -1,6 +1,11 @@
 //
 //  ColorPickerViewController.swift
-//  Notes
+//
+//  Класс представления выбора цвета. Цветовая модель HSB (Hue, Saturation, Brightness).
+//  Содержит представление выбранного цвета, слайдер для управления яркостью и панель для выбора тона и насыщенности.
+//  Выбор подтверждается кнопкой Done.
+//  Параметр doneButtonHandler позволяет передать внещний метод, который будет вызван при нажатии на кнопку Done.
+//  Параметр colorMap позволяет в InterfaceBuilder задать изображение для панели выбора тона и насыщенности.
 //
 //  Created by VitalyP on 02/07/2019.
 //  Copyright © 2019 vitalyp. All rights reserved.
@@ -10,6 +15,8 @@ import UIKit
 
 @IBDesignable
 class ColorPickerView: UIView {
+    
+    // Изображение для панели тона и насыщенности
     @IBInspectable
     var colorMap: UIImage? {
         didSet{
@@ -17,29 +24,43 @@ class ColorPickerView: UIView {
         }
     }
     
-    var currentColor: UIColor {
+    // Вычесляемое поле получения и установки выбранного цвета
+    var currentColor: UIColor? {
         set(color) {
+            guard color != nil else {
+                currentHue = -1.0
+                currentSaturation = -1.0
+                return
+            }
             var brightness: CGFloat = 0.0
-            color.getHue(&currentHue, saturation: &currentSaturation, brightness: &brightness, alpha: nil)
+            color!.getHue(&currentHue, saturation: &currentSaturation, brightness: &brightness, alpha: nil)
             brightSlider.value = Float(brightness)
         }
         get {
+            guard currentHue >= 0.0 && currentSaturation >= 0.0 else {
+                return nil
+            }
             return UIColor(hue: currentHue, saturation: currentSaturation, brightness: CGFloat(brightSlider.value), alpha: 1.0)
         }
     }
     
+    // Внешний обработчик завершения выбора цвета
     var doneButtonHandler: (()->Void)?
     
-    private let verticalSpace: CGFloat = 8.0
-    private let horizontalSpace: CGFloat = 8.0
-    
-    private var currentHue: CGFloat = 0.0
-    private var currentSaturation: CGFloat = 1.0 {
+    // Тон. Отрицательное, когда цвет не выбран
+    private var currentHue: CGFloat = -1.0
+    // Насыщенность. Отрицательое, когда цвет не выбран
+    private var currentSaturation: CGFloat = -1.0 {
         didSet{
             updateColor()
         }
     }
     
+    // Зазоры между компонентами GUI
+    private let verticalSpace: CGFloat = 8.0
+    private let horizontalSpace: CGFloat = 8.0
+    
+    // Компоненты GUI
     private let blackMask = UIView()
     private let colorView = UIView()
     private let brightLabel = UILabel()
@@ -47,16 +68,19 @@ class ColorPickerView: UIView {
     private let colorPaletteView = UIImageView()
     private let doneButton = UIButton()
     
+    // Инициализация представления
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupViews()
     }
     
+    // Инициализация представления
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         setupViews()
     }
     
+    // Отрисовка компонентов
     override func layoutSubviews() {
         super.layoutSubviews()
         
@@ -77,6 +101,7 @@ class ColorPickerView: UIView {
         doneButton.frame = CGRect(origin: CGPoint(x: bounds.midX - doneButtonSize.width / 2, y: bounds.maxY - doneButtonSize.height), size: doneButtonSize)
     }
     
+    // Инициализация компонентов
     private func setupViews() {
         addSubview(colorView)
         addSubview(brightLabel)
@@ -92,18 +117,21 @@ class ColorPickerView: UIView {
         blackMask.translatesAutoresizingMaskIntoConstraints = true
         doneButton.translatesAutoresizingMaskIntoConstraints = true
         
+        // Установка видимых границ
         colorView.layer.borderWidth = 1
         colorView.layer.borderColor = UIColor.black.cgColor
         colorView.layer.cornerRadius = 10
         colorPaletteView.layer.borderColor = UIColor.black.cgColor
         colorPaletteView.layer.borderWidth = 1
         
+        // Настройка слайдера и заголовка
         brightLabel.text = "Brightness"
         brightSlider.maximumValue = 1.0
         brightSlider.minimumValue = 0.0
         brightSlider.value = 1.0
         brightSlider.addTarget(self, action: #selector(brightnessChanged), for: .valueChanged)
         
+        // Создание обработчика жестов
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(colorPaletteGesture(gestureRecognizer:)))
         panGesture.maximumNumberOfTouches = 1
         panGesture.minimumNumberOfTouches = 1
@@ -111,10 +139,13 @@ class ColorPickerView: UIView {
         colorPaletteView.addGestureRecognizer(touchGesture)
         colorPaletteView.addGestureRecognizer(panGesture)
         colorPaletteView.isUserInteractionEnabled = true
+        
+        // Настройка маски затемнения
         blackMask.backgroundColor = UIColor.black
         blackMask.alpha = CGFloat(1 - brightSlider.value)
         blackMask.isUserInteractionEnabled = false
         
+        // Настройка кнопки Done
         doneButton.setTitle("Done", for: .normal)
         doneButton.setTitleColor(doneButton.tintColor, for: .normal)
         doneButton.addTarget(self, action: #selector(onDoneTapped), for: .touchUpInside)
@@ -122,12 +153,13 @@ class ColorPickerView: UIView {
         updateColor()
     }
     
+    // Обработчик изменения яркости
     @objc private func brightnessChanged() {
-//        colorPaletteView.image = colorMap?.alpha(brightSlider.value)
         blackMask.alpha = CGFloat(1 - brightSlider.value)
         updateColor()
     }
     
+    // Обработчик жестов на панеле выбора тона и насыщенности
     @objc private func colorPaletteGesture(gestureRecognizer: UIGestureRecognizer) {
         let location = gestureRecognizer.location(in: colorPaletteView)
         let x = max(0, min(location.x, colorPaletteView.bounds.width))
@@ -136,10 +168,12 @@ class ColorPickerView: UIView {
         currentSaturation = 1.0 - y / colorPaletteView.bounds.height
     }
     
+    // Обновление представления текущего цвета
     @objc private func updateColor() {
         colorView.backgroundColor = currentColor
     }
     
+    // Обработчик завершения выбора цвета
     @objc private func onDoneTapped() {
         doneButtonHandler?()
     }

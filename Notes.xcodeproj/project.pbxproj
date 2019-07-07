@@ -7,13 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1B17B0D822CFC570001031CA /* ColorSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B17B0D722CFC570001031CA /* ColorSelectorView.swift */; };
 		1B3AAE4922C68A4F00CB4D68 /* FileNotebookTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B3AAE4822C68A4F00CB4D68 /* FileNotebookTests.swift */; };
 		1B6B61E922CBCAD500C97145 /* EditNoteViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B6B61E822CBCAD500C97145 /* EditNoteViewController.swift */; };
 		1B6B61EB22CBD9D700C97145 /* ColorPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B6B61EA22CBD9D700C97145 /* ColorPickerView.swift */; };
-		1B6B61ED22CC2A8E00C97145 /* NullableDatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B6B61EC22CC2A8E00C97145 /* NullableDatePicker.swift */; };
+		1B6F8ED322D142E000522B84 /* EditNote.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1B6F8ED222D142E000522B84 /* EditNote.storyboard */; };
 		1BC5554822C31649002FEA0B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BC5554722C31649002FEA0B /* AppDelegate.swift */; };
-		1BC5554D22C31649002FEA0B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1BC5554B22C31649002FEA0B /* Main.storyboard */; };
 		1BC5554F22C3164A002FEA0B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1BC5554E22C3164A002FEA0B /* Assets.xcassets */; };
 		1BC5555222C3164A002FEA0B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1BC5555022C3164A002FEA0B /* LaunchScreen.storyboard */; };
 		1BC5555D22C3164A002FEA0B /* NotesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BC5555C22C3164A002FEA0B /* NotesTests.swift */; };
@@ -36,14 +34,12 @@
 
 /* Begin PBXFileReference section */
 		033EDCB01E358CC52E7264DE /* Pods-NotesTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotesTests.debug.xcconfig"; path = "Target Support Files/Pods-NotesTests/Pods-NotesTests.debug.xcconfig"; sourceTree = "<group>"; };
-		1B17B0D722CFC570001031CA /* ColorSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorSelectorView.swift; sourceTree = "<group>"; };
 		1B3AAE4822C68A4F00CB4D68 /* FileNotebookTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileNotebookTests.swift; sourceTree = "<group>"; };
 		1B6B61E822CBCAD500C97145 /* EditNoteViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditNoteViewController.swift; sourceTree = "<group>"; };
 		1B6B61EA22CBD9D700C97145 /* ColorPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPickerView.swift; sourceTree = "<group>"; };
-		1B6B61EC22CC2A8E00C97145 /* NullableDatePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NullableDatePicker.swift; sourceTree = "<group>"; };
+		1B6F8ED222D142E000522B84 /* EditNote.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = EditNote.storyboard; sourceTree = "<group>"; };
 		1BC5554422C31649002FEA0B /* Notes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Notes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1BC5554722C31649002FEA0B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		1BC5554C22C31649002FEA0B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		1BC5554E22C3164A002FEA0B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1BC5555122C3164A002FEA0B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1BC5555322C3164A002FEA0B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -107,14 +103,12 @@
 			isa = PBXGroup;
 			children = (
 				1BC5554722C31649002FEA0B /* AppDelegate.swift */,
-				1BC5554B22C31649002FEA0B /* Main.storyboard */,
 				1BC5554E22C3164A002FEA0B /* Assets.xcassets */,
 				1BC5555022C3164A002FEA0B /* LaunchScreen.storyboard */,
 				1BC5555322C3164A002FEA0B /* Info.plist */,
 				1B6B61E822CBCAD500C97145 /* EditNoteViewController.swift */,
 				1B6B61EA22CBD9D700C97145 /* ColorPickerView.swift */,
-				1B6B61EC22CC2A8E00C97145 /* NullableDatePicker.swift */,
-				1B17B0D722CFC570001031CA /* ColorSelectorView.swift */,
+				1B6F8ED222D142E000522B84 /* EditNote.storyboard */,
 			);
 			path = Notes;
 			sourceTree = "<group>";
@@ -246,7 +240,7 @@
 			files = (
 				1BC5555222C3164A002FEA0B /* LaunchScreen.storyboard in Resources */,
 				1BC5554F22C3164A002FEA0B /* Assets.xcassets in Resources */,
-				1BC5554D22C31649002FEA0B /* Main.storyboard in Resources */,
+				1B6F8ED322D142E000522B84 /* EditNote.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -312,11 +306,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				1BC5557622C33933002FEA0B /* FileNotebook.swift in Sources */,
-				1B6B61ED22CC2A8E00C97145 /* NullableDatePicker.swift in Sources */,
 				1BC5554822C31649002FEA0B /* AppDelegate.swift in Sources */,
 				1B6B61EB22CBD9D700C97145 /* ColorPickerView.swift in Sources */,
 				1BC5557522C33933002FEA0B /* Note.swift in Sources */,
-				1B17B0D822CFC570001031CA /* ColorSelectorView.swift in Sources */,
 				1B6B61E922CBCAD500C97145 /* EditNoteViewController.swift in Sources */,
 				1BC5557422C33933002FEA0B /* NoteExtensions.swift in Sources */,
 			);
@@ -342,14 +334,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		1BC5554B22C31649002FEA0B /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				1BC5554C22C31649002FEA0B /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		1BC5555022C3164A002FEA0B /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
