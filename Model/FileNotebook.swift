@@ -33,7 +33,7 @@ public class FileNotebook {
     
     // Add Note (Replace if Note with same uid exists)
     public func add(_ note: Note) {
-        switch (notes.firstIndex(where: { $0.uid == note.uid })) {
+        switch (index(of: note)) {
         case let index?:
             notes[index] = note
             DDLogInfo("Note with uid=\(note.uid) replaced by \(note).")
@@ -43,10 +43,21 @@ public class FileNotebook {
         }
     }
     
+    // Find Note index by uid
+    public func index(of note: Note) -> Int? {
+        return notes.firstIndex(where: { $0.uid == note.uid })
+    }
+    
     // Remove Note by uid
     public func remove(with uid: String) {
         notes.removeAll(where: { $0.uid == uid })
         DDLogInfo("Note with uid=\(uid) removed.")
+    }
+    
+    // Remove Note by index
+    public func remove(with index: Int) {
+        notes.remove(at: index)
+        DDLogInfo("Note with index=\(index) removed.")
     }
     
     // Get file url

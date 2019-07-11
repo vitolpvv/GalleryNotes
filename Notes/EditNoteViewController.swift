@@ -11,60 +11,29 @@
 import UIKit
 import CocoaLumberjack
 
-// Расширение контроллера. Прячет клавиатуру при тапе в свободной области.
-extension UIViewController {
-    func hideKeyboardWhenTappedAround() {
-        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        tap.cancelsTouchesInView = false
-        view.addGestureRecognizer(tap)
-    }
-    
-    @objc func dismissKeyboard() {
-        view.endEditing(true)
-    }
-}
-
-// Расширение кнопки. Рисует отметку на выбраной кнопке.
-extension UIButton {
-    open override func draw(_ rect: CGRect) {
-        super.draw(rect)
-        if isSelected {
-            let path = UIBezierPath()
-            path.lineWidth = 2
-            path.addArc(withCenter: CGPoint(x: rect.midX + rect.width / 4,y: rect.minY + rect.width / 4),
-                        radius: rect.width / 5,
-                        startAngle: 0.0,
-                        endAngle: 7 * CGFloat.pi / 4,
-                        clockwise: true)
-            path.addLine(to: CGPoint(x: rect.midX + rect.width / 4,
-                                     y: rect.minY + rect.width / 3))
-            path.addLine(to: CGPoint(x: rect.maxX - rect.width / 3,
-                                     y: rect.minY + rect.width / 5))
-            UIColor.black.setStroke()
-            path.stroke()
-        }
-    }
-}
-
 class EditNoteViewController: UIViewController {
     
     // Компоненты GUI
+    @IBOutlet weak var saveButton: UIBarButtonItem!
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var titleTextField: UITextField!
     @IBOutlet weak var contentTextView: UITextView!
+    @IBOutlet weak var datePickerSwitch: UISwitch!
     @IBOutlet weak var datePicker: UIDatePicker!
     @IBOutlet weak var whiteColorButton: UIButton!
     @IBOutlet weak var redColorButton: UIButton!
     @IBOutlet weak var greenColorButton: UIButton!
     @IBOutlet weak var customColorButton: UIButton!
-    @IBOutlet weak var colorPickerView: ColorPickerView!
+    @IBOutlet weak var importanceSegmentedControl: UISegmentedControl!
     
     // Ограничения
     @IBOutlet weak var datePickerHeightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var colorPickerViewBottomConstraint: NSLayoutConstraint!
+    
+    // Заметка
+    var note: Note?
     
     // Массив цветных кнопок
-    private var colorButtons = [UIButton]()
+    private var colorButtons = [UIColor?: UIButton]()
     
     // Инициализация контроллера
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -85,38 +54,143 @@ class EditNoteViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        colorButtons.append(whiteColorButton)
-        colorButtons.append(redColorButton)
-        colorButtons.append(greenColorButton)
-        colorButtons.append(customColorButton)
-        
-        // При загрузке выбран белый цвет
-        whiteColorButton.isSelected = true
-        
-        // Привязка обработчика завершения выбора цвета
-        colorPickerView.doneButtonHandler = colorPickerDoneHandler
+        colorButtons[UIColor.white] = whiteColorButton
+        colorButtons[UIColor.red] = redColorButton
+        colorButtons[UIColor.green] = greenColorButton
+        colorButtons[nil] = customColorButton
         
         // Настройка видимых границ
         setBorders()
+        
+        // Заполнение полей данными
+        setFields()
         
         // Установка обработчиков событий клавиатуры
         setKeyboardNotificationObservers()
         hideKeyboardWhenTappedAround()
     }
     
+    
+    // Выполняется перед отображением представления
+    private func setFields() {
+        switch note {
+        case .none: title = "New note"
+        default: title = "Edit note"
+            navigationItem.rightBarButtonItem?.isEnabled = true
+        }
+        
+        titleTextField.text = note?.title
+        contentTextView.text = note?.content
+        
+        if let date = note?.destroyDate {
+            datePickerSwitch.isOn = true
+            datePicker.date = date
+            datePicker(show: true)
+        }
+        switch note?.color.cgColor {
+        case .none, UIColor.white.cgColor: colorButtonTapped(whiteColorButton)
+        case UIColor.red.cgColor: colorButtonTapped(redColorButton)
+        case UIColor.green.cgColor: colorButtonTapped(greenColorButton)
+        default:
+            setCustomColorButtonColor((note?.color)!)
+        }
+        
+        let importance = note?.importance ?? Note.Importance.normal
+        switch importance {
+        case .low: importanceSegmentedControl.selectedSegmentIndex = 0
+        case .normal: importanceSegmentedControl.selectedSegmentIndex = 1
+        case .high: importanceSegmentedControl.selectedSegmentIndex = 2
+        }
+    }
+    
+    @IBAction func validateTitleAndContent(_ sender: Any) {
+        if titleTextField.text?.isEmpty ?? true || contentTextView.text.isEmpty {
+            navigationItem.rightBarButtonItem?.isEnabled = false
+        } else {
+            navigationItem.rightBarButtonItem?.isEnabled = true
+        }
+    }
+    
     // Обработка переключателя UseDestroyDate
     @IBAction func destroyDateSwitchToggled(_ sender: UISwitch) {
         view.endEditing(true)
-        switch sender.isOn {
-        case true: datePickerHeightConstraint.constant = datePicker.intrinsicContentSize.height
-        default: datePickerHeightConstraint.constant = 0
+        datePicker(show: sender.isOn)
+    }
+    
+    // Обработчик нажатия на цветные кнопки
+    @IBAction
+    private func colorButtonTapped(_ sender: UIButton) {
+        // Исключение выбора последней кнопки, если цвет не выбран
+        guard sender != customColorButton || customColorButton.backgroundColor != nil else {
+            return
+        }
+        view.endEditing(true)
+        colorButtons.values.filter({button in button != sender}).forEach({button in button.isSelected = false})
+        sender.isSelected = true
+    }
+    
+    // Показать ColorPicker
+    @IBAction
+    private func showColorPicker(_ sender: UILongPressGestureRecognizer?) {
+        if sender?.state == .began {
+            view.endEditing(true)
+            sender?.state = .ended
+            performSegue(withIdentifier: "ColorPickerSegue", sender: nil)
+        }
+    }
+    
+    @IBAction func unwindToEditNote(_ unwindSegue: UIStoryboardSegue) {
+        if let sourceController = unwindSegue.source as? ColorPickerViewController, let color = sourceController.currentColor {
+            setCustomColorButtonColor(color)
+        }
+    }
+    
+    
+    
+    // Подготовка данных перед сохранением заметки
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let button = sender as? UIBarButtonItem, button === saveButton {
+            let uid = note?.uid
+            let title = titleTextField.text ?? ""
+            let content = contentTextView.text ?? ""
+            let importance: Note.Importance
+            switch importanceSegmentedControl.selectedSegmentIndex {
+            case 0: importance = .low
+            case 2: importance = .high
+            default: importance = .normal
+            }
+            var date: Date? = nil
+            if datePickerSwitch.isOn {
+                date = datePicker.date
+            }
+            var color = colorButtons.first(where: {$1.isSelected})?.key
+            if color == nil {
+                color = customColorButton.backgroundColor
+            }
+            switch uid {
+            case .none:
+                note = Note(title: title,
+                            content: content,
+                            color: color!,
+                            importance: importance,
+                            destroyDate: date)
+            default:
+                note = Note(uid: uid!,
+                            title: title,
+                            content: content,
+                            color: color!,
+                            importance: importance,
+                            destroyDate: date)
+            }
+        } else if segue.identifier == "ColorPickerSegue" {
+            (segue.destination as! ColorPickerViewController).currentColor = customColorButton.backgroundColor
         }
     }
     
     // Установка видимых границ компонентов
     private func setBorders() {
-        let borderColor = UIColor.black.cgColor
-        let borderWidth: CGFloat = 1.0
+        var borderColor = UIColor.lightGray.cgColor
+        let borderWidth: CGFloat = 0.5
         let cornerRadius: CGFloat = 5.0
         
         titleTextField.layer.borderWidth = borderWidth
@@ -126,6 +200,8 @@ class EditNoteViewController: UIViewController {
         contentTextView.layer.borderWidth = borderWidth
         contentTextView.layer.borderColor = borderColor
         contentTextView.layer.cornerRadius = cornerRadius
+        
+        borderColor = UIColor.black.cgColor
         
         whiteColorButton.layer.borderWidth = borderWidth
         whiteColorButton.layer.borderColor = borderColor
@@ -137,35 +213,45 @@ class EditNoteViewController: UIViewController {
         customColorButton.layer.borderColor = borderColor
     }
     
-    // Обработчик нажатия на цветные кнопки
-    @IBAction
-    private func colorButtonTapped(_ sender: UIButton) {
-        // Исключение выбора последней кнопки, если цвет не выбран
-        guard sender != customColorButton || colorPickerView.currentColor != nil else {
-            return
+    // Показать/скрыть DatePicker
+    private func datePicker(show: Bool) {
+        switch show {
+        case true:
+            datePickerHeightConstraint.constant = datePicker.intrinsicContentSize.height
+        default:
+            datePickerHeightConstraint.constant = 0.0
         }
-        colorButtons.filter({button in button != sender}).forEach({button in button.isSelected = false})
-        sender.isSelected = true
+        UIView.animate(withDuration: 0.5) {
+            self.scrollView.layoutIfNeeded()
+        }
     }
     
-    // Показать ColorPicker
-    @IBAction
-    private func showColorPicker() {
-        view.endEditing(true)
-        scrollView.isHidden = true
-        colorPickerView.isHidden = false
-    }
-    
-    // Обработчик завершения выбора цвета
-    private func colorPickerDoneHandler() {
-        colorPickerView.isHidden = true
-        scrollView.isHidden = false
-        guard colorPickerView.currentColor != nil else {
-            return
-        }
+    // Установка цвета на кнопку выбора цвета
+    private func setCustomColorButtonColor(_ color: UIColor) {
+        customColorButton.backgroundColor = color
         customColorButton.setBackgroundImage(nil, for: .normal)
-        customColorButton.backgroundColor = colorPickerView.currentColor
         colorButtonTapped(customColorButton)
+    }
+}
+
+// Обработчики ввода текста
+extension EditNoteViewController: UITextViewDelegate {
+    
+    func textViewDidChange(_ textView: UITextView) {
+        validateTitleAndContent(self)
+    }
+    
+    
+}
+
+// Расширение контроллера. Работа с клавиатурой.
+extension EditNoteViewController {
+    
+    // Установка обработки тапа по пустой оласти экрана
+    func hideKeyboardWhenTappedAround() {
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
     }
     
     // Установка обработки появления/скрытия клавиатуры
@@ -190,6 +276,11 @@ class EditNoteViewController: UIViewController {
                                                   object: nil)
     }
     
+    // Прячет клавиатуру
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
     // Обработчик появления клавиатуры
     @objc private func keyboardWillShow(notification: Notification) {
         guard let userInfo = notification.userInfo  else {
@@ -200,13 +291,42 @@ class EditNoteViewController: UIViewController {
         }
         if(scrollView.contentInset.bottom != keyboardFrame.height) {
             scrollView.contentInset.bottom = keyboardFrame.height
-            colorPickerViewBottomConstraint.constant = keyboardFrame.height - self.view.safeAreaInsets.bottom
         }
     }
     
     // Обработчик скрытия клавиатуры
     @objc private func keyboardWillHide(notification: Notification) {
         scrollView.contentInset.bottom = .zero
-        colorPickerViewBottomConstraint.constant = 8
+    }
+}
+
+// Цветные кнопки.
+class ColorButton: UIButton {
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        setNeedsDisplay()
+    }
+    
+    override func draw(_ rect: CGRect) {
+        super.draw(rect)
+        if isSelected {
+            let path = UIBezierPath()
+            path.lineWidth = 2
+            path.addArc(withCenter: CGPoint(x: rect.maxX - rect.height / 4,y: rect.minY + rect.height / 4),
+                        radius: rect.height / 5,
+                        startAngle: deg2rad(320),
+                        endAngle: deg2rad(319),
+                        clockwise: true)
+            path.addLine(to: CGPoint(x: rect.maxX - rect.height / 4,
+                                     y: rect.minY + rect.height / 3))
+            path.addLine(to: CGPoint(x: rect.maxX - rect.height / 3,
+                                     y: rect.minY + rect.height / 5))
+            UIColor.black.setStroke()
+            path.stroke()
+        }
+    }
+    
+    private func deg2rad(_ number: CGFloat) -> CGFloat {
+        return number * .pi / 180
     }
 }
