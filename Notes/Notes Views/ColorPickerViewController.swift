@@ -8,6 +8,7 @@
 
 import UIKit
 
+// Представление выбора цвета
 class ColorPickerViewController: UIViewController {
     
     // Вычесляемое поле получения и установки выбранного цвета

@@ -8,6 +8,7 @@
 
 import UIKit
 
+// Представление элемента в таблице
 class NoteTableViewCell: UITableViewCell {
     @IBOutlet weak var colorView: UIView!
     @IBOutlet weak var titleLabel: UILabel!

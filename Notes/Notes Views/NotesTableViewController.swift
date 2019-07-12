@@ -8,6 +8,7 @@
 
 import UIKit
 
+// Таблица заметок
 class NotesTableViewController: UIViewController {
     private let noteCellIdentifier = "NoteCell"
     private let notesDataSource = FileNotebook()
@@ -21,16 +22,20 @@ class NotesTableViewController: UIViewController {
                                 forCellReuseIdentifier: noteCellIdentifier)
     }
     
+    // Обработчик кнопки Edit
     @IBAction
     @objc private func editNotesClicked() {
         tableView.isEditing = !tableView.isEditing
+        switch tableView.isEditing {
+        case true:
+            navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(editNotesClicked))
+        default:
+            navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(editNotesClicked))
+        }
+        navigationItem.rightBarButtonItem?.isEnabled = !tableView.isEditing
     }
     
-//    @IBAction
-//        @objc private func addNoteClicked(_ sender: UIBarButtonItem) {
-//        performSegue(withIdentifier: "EditNoteSegue", sender: sender)
-//    }
-    
+    // Подготовка данных перед переходом
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         super.prepare(for: segue, sender: sender)
         if let indexPath = sender as? IndexPath {
@@ -40,7 +45,7 @@ class NotesTableViewController: UIViewController {
     }
 }
 
-
+// Расширение для создание ячеек таблицы
 extension NotesTableViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return notesDataSource.notes.count
@@ -56,6 +61,7 @@ extension NotesTableViewController: UITableViewDataSource {
     }
 }
 
+// Расширение для обновления таблици при изменении данных
 extension NotesTableViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
@@ -84,6 +90,5 @@ extension NotesTableViewController: UITableViewDelegate {
                 tableView.endUpdates()
             }
         }
-        // Use data from the view controller which initiated the unwind segue
     }
 }

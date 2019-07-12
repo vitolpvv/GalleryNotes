@@ -8,6 +8,7 @@
 
 import UIKit
 
+// Листалка
 class ImageNotePageViewController: UIPageViewController {
     
     var gallery: FileGallery?
@@ -21,6 +22,8 @@ class ImageNotePageViewController: UIPageViewController {
         setViewControllers([viewController(for: index)], direction: .forward, animated: true, completion: nil)
     }
     
+    
+    // Создает представление для элемента коллекции
     private func viewController(for index: Int) -> UIViewController {
         let controller = ImageNoteViewController(nibName: "ImageNoteViewController", bundle: nil)
         controller.index = index
@@ -29,6 +32,7 @@ class ImageNotePageViewController: UIPageViewController {
     }
 }
 
+// Расширение для организации перелистования по коллекции
 extension ImageNotePageViewController: UIPageViewControllerDataSource {
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         let controller = viewController as! ImageNoteViewController
@@ -40,7 +44,7 @@ extension ImageNotePageViewController: UIPageViewControllerDataSource {
     
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
         let controller = viewController as! ImageNoteViewController
-        guard controller.index < (gallery?.imageNotes.count)! - 2 else {
+        guard controller.index < (gallery?.imageNotes.count)! - 1 else {
             return nil
         }
         return self.viewController(for: controller.index + 1)

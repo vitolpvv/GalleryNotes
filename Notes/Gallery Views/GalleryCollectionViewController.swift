@@ -19,59 +19,56 @@ class GalleryCollectionViewController: UICollectionViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Register cell classes
         collectionView.register(UINib(nibName: "ImageNoteCollectionViewCell", bundle: nil),
                                       forCellWithReuseIdentifier: reuseIdentifier)
-        
-        
         imagePicker.delegate = self
         imagePicker.sourceType = .photoLibrary
-        
-        
-
-        // Do any additional setup after loading the view.
     }
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using [segue destinationViewController].
-        // Pass the selected object to the new view controller.
+    
+    // Обработчик кнопки Add
+    @IBAction func addButtonTapped(_ sender: Any) {
+        self.present(self.imagePicker, animated: true, completion: nil)
     }
-    */
-
-    // MARK: UICollectionViewDataSource
-
-//    override func numberOfSections(in collectionView: UICollectionView) -> Int {
-//        // #warning Incomplete implementation, return the number of sections
-//        return 0
-//    }
-
-
+    
+    // Обработчик кнопки Edit
+    @IBAction @objc func editButtonTapped() {
+        isEditing = !isEditing
+        switch isEditing {
+        case true:
+            navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(editButtonTapped))
+        default:
+            navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(editButtonTapped))
+        }
+        if let indexPaths = collectionView?.indexPathsForVisibleItems {
+            for indexPath in indexPaths {
+                if let cell = collectionView?.cellForItem(at: indexPath) as? ImageNoteCollectionViewCell {
+                    cell.isEditing = isEditing
+                }
+            }
+        }
+        navigationItem.rightBarButtonItem?.isEnabled = !isEditing
+    }
+    
+    // Количество заметок
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of items
         return gallery.imageNotes.count
     }
 
+    // Возвращает ячейку для ImageNote
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! ImageNoteCollectionViewCell
-    
-        // Configure the cell
-        cell.imageView.image = gallery.imageNotes[indexPath.row].image()
-    
+        cell.image = gallery.imageNotes[indexPath.item].image()
+        cell.delegate = self
         return cell
     }
     
+    // Обработчик выбора элемента
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
         performSegue(withIdentifier: "ImageNotePagerSegue", sender: indexPath)
     }
     
+    // Подготовка данных перед переходом на другой экран
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let indexPath = sender as? IndexPath {
             let controller = segue.destination as! ImageNotePageViewController
@@ -79,43 +76,9 @@ class GalleryCollectionViewController: UICollectionViewController {
             controller.gallery = gallery
         }
     }
-
-    // MARK: UICollectionViewDelegate
-
-    /*
-    // Uncomment this method to specify if the specified item should be highlighted during tracking
-    override func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    */
-
-    /*
-    // Uncomment this method to specify if the specified item should be selected
-    override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    */
-
-    /*
-    // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
-    override func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-        return false
-    }
-
-    override func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
-        return false
-    }
-
-    override func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
-    
-    }
-    */
-
-    @IBAction func addButtonTapped(_ sender: Any) {
-        self.present(self.imagePicker, animated: true, completion: nil)
-    }
 }
 
+// Расширение для взаимодействия с UIImagePicker
 extension GalleryCollectionViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     @objc func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -128,18 +91,29 @@ extension GalleryCollectionViewController: UIImagePickerControllerDelegate, UINa
             return
         }
         gallery.add(note)
-        collectionView.reloadData()
+        let insertedIndexPath = IndexPath(item: gallery.imageNotes.count - 1, section: 0)
+        collectionView.insertItems(at: [insertedIndexPath])
         dismiss(animated: true, completion: nil)
     }
 }
 
+// Расширение для расчета размера элемента
 extension GalleryCollectionViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let layout = collectionViewLayout as! UICollectionViewFlowLayout
         let paddingSpace = layout.sectionInset.left + layout.sectionInset.right + layout.minimumInteritemSpacing * (itemsPerRow - 1)
         let availableWidth = collectionView.bounds.width - paddingSpace
-        let widthPerItem = availableWidth / itemsPerRow
-        
+        let widthPerItem = availableWidth / itemsPerRow        
         return CGSize(width: widthPerItem, height: widthPerItem)
+    }
+}
+
+// Расштрение для удаления компонента
+extension GalleryCollectionViewController: ImageNoteCollectionViewCellDelegate {
+    func delete(cell: ImageNoteCollectionViewCell) {
+        if let indexPath = collectionView.indexPath(for: cell) {
+            gallery.remove(with: indexPath.item)
+            collectionView.deleteItems(at: [indexPath])
+        }
     }
 }
