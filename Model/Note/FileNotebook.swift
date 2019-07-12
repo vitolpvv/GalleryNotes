@@ -41,6 +41,7 @@ public class FileNotebook {
             notes.append(note)
             DDLogInfo("Note with uid=\(note.uid) appended.")
         }
+        save()
     }
     
     // Find Note index by uid
@@ -51,12 +52,14 @@ public class FileNotebook {
     // Remove Note by uid
     public func remove(with uid: String) {
         notes.removeAll(where: { $0.uid == uid })
+        save()
         DDLogInfo("Note with uid=\(uid) removed.")
     }
     
     // Remove Note by index
     public func remove(with index: Int) {
         notes.remove(at: index)
+        save()
         DDLogInfo("Note with index=\(index) removed.")
     }
     
@@ -97,7 +100,6 @@ public class FileNotebook {
             DDLogError("Notes save: Writing file error.")
             return
         }
-        DDLogInfo("Notes save: Notes saved.")
     }
     
     // Load Notes from file
@@ -125,6 +127,5 @@ public class FileNotebook {
                 
             }
         }
-        DDLogInfo("Notes load: Notes loaded.")
     }
 }

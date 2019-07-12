@@ -25,6 +25,11 @@ class GalleryCollectionViewController: UICollectionViewController {
         imagePicker.sourceType = .photoLibrary
     }
     
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        collectionViewLayout.invalidateLayout()
+    }
+    
     // Обработчик кнопки Add
     @IBAction func addButtonTapped(_ sender: Any) {
         self.present(self.imagePicker, animated: true, completion: nil)
@@ -59,6 +64,7 @@ class GalleryCollectionViewController: UICollectionViewController {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! ImageNoteCollectionViewCell
         cell.image = gallery.imageNotes[indexPath.item].image()
         cell.delegate = self
+        cell.isEditing = isEditing
         return cell
     }
     

@@ -7,7 +7,9 @@
 //
 
 import UIKit
+import CocoaLumberjack
 
+// Хранилище ImageNote
 class FileGallery {
     // String constants
     private enum Str {
@@ -32,6 +34,7 @@ class FileGallery {
         default:
             imageNotes.append(imageNote)
         }
+        save()
     }
     
     public func index(of imageNote: ImageNote) -> Int? {
@@ -40,10 +43,12 @@ class FileGallery {
     
     public func remove(with uid: String) {
         imageNotes.removeAll {note in note.uid == uid}
+        save()
     }
     
     public func remove(with index: Int) {
         imageNotes.remove(at: index)
+        save()
     }
     
     private let fileUrl = {() -> URL? in
@@ -53,12 +58,15 @@ class FileGallery {
     
     private func load() {
         guard let file = fileUrl() else {
+            DDLogError("ImageNotes load: File do not accessible.")
             return
         }
         guard let data = try? Data(contentsOf: file) else {
+            DDLogError("ImageNotes load: Reading file error.")
             return
         }
         guard let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: [[String: Any]]] else {
+            DDLogError("ImageNotes load: Data deserialization error.")
             return
         }
         json[Str.jsonRoot]?.forEach {item in
@@ -77,12 +85,15 @@ class FileGallery {
         let dict: [String: Any] = [Str.jsonRoot: items]
         
         guard let json = try? JSONSerialization.data(withJSONObject: dict, options: []) else {
+            DDLogError("ImageNotes save: Data serialization error.")
             return
         }
         guard let file = fileUrl(), (FileManager.default.fileExists(atPath: file.path) || FileManager.default.createFile(atPath: file.path, contents: nil, attributes: nil)) else {
+            DDLogError("ImageNotes save: File do not accessilbe.")
             return
         }
         guard ((try? json.write(to: file)) != nil) else {
+            DDLogError("ImageNotes save: Writing file error.")
             return
         }
     }

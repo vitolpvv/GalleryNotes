@@ -9,6 +9,7 @@
 import UIKit
 import CocoaLumberjack
 
+// Заметка-картинка
 struct ImageNote {
     let uid: String
     let imagePath: String
@@ -30,6 +31,7 @@ struct ImageNote {
     }
 }
 
+// Расширение для преобразование json<->ImageNote
 extension ImageNote {
     enum JsonKeys {
         static let uid = "uid"
