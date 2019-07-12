@@ -56,7 +56,6 @@ extension ImageNote {
     }
     
     var json: [String: Any] {
-        return [JsonKeys.uid: uid,
-                JsonKeys.imagePath: imagePath]
+        return [JsonKeys.uid: uid, JsonKeys.imagePath: imagePath]
     }
 }

@@ -23,6 +23,7 @@ class GalleryCollectionViewController: UICollectionViewController {
                                       forCellWithReuseIdentifier: reuseIdentifier)
         imagePicker.delegate = self
         imagePicker.sourceType = .photoLibrary
+        imagePicker.allowsEditing = false
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -88,18 +89,16 @@ class GalleryCollectionViewController: UICollectionViewController {
 extension GalleryCollectionViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     @objc func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        dismiss(animated: true, completion: nil)
+        picker.dismiss(animated: true, completion: nil)
     }
     
     @objc func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        guard let note = ImageNote(imagePath: (info[UIImagePickerController.InfoKey.imageURL] as! URL).path) else {
-            dismiss(animated: true, completion: nil)
-            return
+        if let note = ImageNote(imagePath: (info[UIImagePickerController.InfoKey.imageURL] as! URL).path) {
+            gallery.add(note)
+            let insertedIndexPath = IndexPath(item: gallery.imageNotes.count - 1, section: 0)
+            collectionView.insertItems(at: [insertedIndexPath])
         }
-        gallery.add(note)
-        let insertedIndexPath = IndexPath(item: gallery.imageNotes.count - 1, section: 0)
-        collectionView.insertItems(at: [insertedIndexPath])
-        dismiss(animated: true, completion: nil)
+        picker.dismiss(animated: true, completion: nil)
     }
 }
 
