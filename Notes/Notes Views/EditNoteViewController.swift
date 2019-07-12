@@ -103,6 +103,7 @@ class EditNoteViewController: UIViewController {
         }
     }
     
+    // Проверка заполнения полей заголовка и содержимого заметки
     @IBAction func validateTitleAndContent(_ sender: Any) {
         if titleTextField.text?.isEmpty ?? true || contentTextView.text.isEmpty {
             navigationItem.rightBarButtonItem?.isEnabled = false
@@ -139,13 +140,12 @@ class EditNoteViewController: UIViewController {
         }
     }
     
+    // Возврат к редактору заметок
     @IBAction func unwindToEditNote(_ unwindSegue: UIStoryboardSegue) {
         if let sourceController = unwindSegue.source as? ColorPickerViewController, let color = sourceController.currentColor {
             setCustomColorButtonColor(color)
         }
     }
-    
-    
     
     // Подготовка данных перед сохранением заметки
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -235,13 +235,14 @@ class EditNoteViewController: UIViewController {
 }
 
 // Обработчики ввода текста
-extension EditNoteViewController: UITextViewDelegate {
-    
+extension EditNoteViewController: UITextViewDelegate, UITextFieldDelegate {
     func textViewDidChange(_ textView: UITextView) {
         validateTitleAndContent(self)
     }
-    
-    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        contentTextView.becomeFirstResponder()
+        return false
+    }
 }
 
 // Расширение контроллера. Работа с клавиатурой.

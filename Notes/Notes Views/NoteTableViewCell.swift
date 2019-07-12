@@ -16,6 +16,7 @@ class NoteTableViewCell: UITableViewCell {
     var note: Note? {
         didSet{
             colorView.backgroundColor = note?.color
+            colorView.tintColor = note?.color
             titleLabel.text = note?.title
             contentLabel.text = note?.content
         }

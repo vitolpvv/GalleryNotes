@@ -65,7 +65,7 @@ public class FileNotebook {
         #if TEMPNOTES
         return FileManager.default.temporaryDirectory.appendingPathComponent(Str.fileName)
         #else
-        return FileManager.default.urls(for: .cachesDirectory,
+        return FileManager.default.urls(for: .documentDirectory,
                                         in: .userDomainMask).first?.appendingPathComponent(Str.fileName)
         #endif
     }

@@ -8,7 +8,7 @@
 
 import UIKit
 
-class NotesViewController: UIViewController {
+class NotesTableViewController: UIViewController {
     private let noteCellIdentifier = "NoteCell"
     private let notesDataSource = FileNotebook()
     
@@ -41,7 +41,7 @@ class NotesViewController: UIViewController {
 }
 
 
-extension NotesViewController: UITableViewDataSource {
+extension NotesTableViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return notesDataSource.notes.count
     }
@@ -56,7 +56,7 @@ extension NotesViewController: UITableViewDataSource {
     }
 }
 
-extension NotesViewController: UITableViewDelegate {
+extension NotesTableViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             notesDataSource.remove(with: indexPath.row)
