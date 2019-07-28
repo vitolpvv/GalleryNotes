@@ -17,19 +17,14 @@ public class FileNotebook {
     // Notes collection
     public private(set) var notes = [Note]()
     
-    // Load Notes on initialization
+    // Initialization
     init() {
         #if TEMPNOTES
         add(Note(title: "Note 1", content: "Content of note 1", importance: Note.Importance.low, destroyDate: nil))
         add(Note(title: "Note 2", content: "Content of note 2", importance: Note.Importance.low, destroyDate: Date()))
         add(Note(title: "Note 3", content: "Content of note 3", color: UIColor.yellow, importance: Note.Importance.low, destroyDate: Date()))
         #endif
-        load()
-        
     }
-    
-    // Save Notes on deinitialization
-    deinit { save() }
     
     // Add Note (Replace if Note with same uid exists)
     public func add(_ note: Note) {
@@ -61,6 +56,16 @@ public class FileNotebook {
         notes.remove(at: index)
         save()
         DDLogInfo("Note with index=\(index) removed.")
+    }
+    
+    // Remove Note
+    public func remove(_ note: Note) {
+        guard let index = index(of: note) else {
+            return
+        }
+        notes.remove(at: index)
+        save()
+        DDLogInfo("Note \(note) removed.")
     }
     
     // Get file url
@@ -103,7 +108,7 @@ public class FileNotebook {
     }
     
     // Load Notes from file
-    private func load() {
+    public func load() {
         // First get file url
         // If success: Try get data
         // If success: Try create json

@@ -27,7 +27,7 @@ class ImageNotePageViewController: UIPageViewController {
     private func viewController(for index: Int) -> UIViewController {
         let controller = ImageNoteViewController(nibName: "ImageNoteViewController", bundle: nil)
         controller.index = index
-        controller.image = gallery?.imageNotes[index].image()
+        controller.image = gallery?.imageNotes[index].image() ?? UIImage(named: "noImage")
         return controller
     }
 }

@@ -7,6 +7,7 @@
 import UIKit
 import CocoaLumberjack
 
+// Расширение для преобразования заметки в JSON и обратно
 public extension Note {
     // String constants
     enum JsonKeys {
@@ -97,5 +98,30 @@ public extension Note {
             }
         }
         return dict
+    }
+}
+
+// Расширение для стравнения заметок
+extension Note: Equatable {
+    public static func == (lhs: Note, rhs: Note) -> Bool {
+        guard lhs.uid == rhs.uid else {
+            return false
+        }
+        guard lhs.title == rhs.title else {
+            return false
+        }
+        guard lhs.content == rhs.content else {
+            return false
+        }
+        guard lhs.color.isEqual(rhs.color) else {
+            return false
+        }
+        guard lhs.importance == rhs.importance else {
+            return false
+        }
+        guard lhs.destroyDate == rhs.destroyDate else {
+            return false
+        }
+        return true
     }
 }

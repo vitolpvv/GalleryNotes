@@ -9,21 +9,28 @@
 import UIKit
 import Photos
 
+
+// Галерея заметок.
+// 
 class GalleryCollectionViewController: UICollectionViewController {
     
     private let reuseIdentifier = "GalleryCell"
     private let itemsPerRow: CGFloat = 3
-    private let imagePicker = UIImagePickerController()
     
     private var gallery = FileGallery()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         collectionView.register(UINib(nibName: "ImageNoteCollectionViewCell", bundle: nil),
                                       forCellWithReuseIdentifier: reuseIdentifier)
-        imagePicker.delegate = self
-        imagePicker.sourceType = .photoLibrary
-        imagePicker.allowsEditing = false
+        
+        let loadOperation = LoadImageNotesOperation(gallery: gallery, backendQueue: OperationQueue(), dbQueue: OperationQueue())
+        loadOperation.completionBlock = {
+            OperationQueue.main.addOperation {
+                self.collectionView.reloadData()
+            }
+        }
+        OperationQueue().addOperation(loadOperation)
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -31,9 +38,11 @@ class GalleryCollectionViewController: UICollectionViewController {
         collectionViewLayout.invalidateLayout()
     }
     
-    // Обработчик кнопки Add
-    @IBAction func addButtonTapped(_ sender: Any) {
-        self.present(self.imagePicker, animated: true, completion: nil)
+    @IBAction func addPhotoTapped(_ sender: Any) {
+        let imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
+        imagePicker.sourceType = .photoLibrary
+        present(imagePicker, animated: true, completion: nil)
     }
     
     // Обработчик кнопки Edit
@@ -60,10 +69,10 @@ class GalleryCollectionViewController: UICollectionViewController {
         return gallery.imageNotes.count
     }
 
-    // Возвращает ячейку для ImageNote
+    // Возвращает представление для ImageNote
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! ImageNoteCollectionViewCell
-        cell.image = gallery.imageNotes[indexPath.item].image()
+        cell.image = gallery.imageNotes[indexPath.item].image() ?? UIImage(named: "noImage")
         cell.delegate = self
         cell.isEditing = isEditing
         return cell
@@ -93,11 +102,16 @@ extension GalleryCollectionViewController: UIImagePickerControllerDelegate, UINa
     }
     
     @objc func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        if let note = ImageNote(imagePath: (info[UIImagePickerController.InfoKey.imageURL] as! URL).path) {
-            gallery.add(note)
-            let insertedIndexPath = IndexPath(item: gallery.imageNotes.count - 1, section: 0)
-            collectionView.insertItems(at: [insertedIndexPath])
+        let note = ImageNote(imagePath: (info[UIImagePickerController.InfoKey.imageURL] as! URL).path)
+        let saveOperation = SaveImageNoteOperation(note: note, gallery: gallery, backendQueue: OperationQueue(), dbQueue: OperationQueue())
+        saveOperation.completionBlock = {
+            OperationQueue.main.addOperation {
+                let insertedIndexPath = IndexPath(item: self.gallery.imageNotes.count - 1, section: 0)
+                self.collectionView.insertItems(at: [insertedIndexPath])
+            }
         }
+        OperationQueue().addOperation(saveOperation)
+        
         picker.dismiss(animated: true, completion: nil)
     }
 }
@@ -117,8 +131,13 @@ extension GalleryCollectionViewController: UICollectionViewDelegateFlowLayout {
 extension GalleryCollectionViewController: ImageNoteCollectionViewCellDelegate {
     func delete(cell: ImageNoteCollectionViewCell) {
         if let indexPath = collectionView.indexPath(for: cell) {
-            gallery.remove(with: indexPath.item)
-            collectionView.deleteItems(at: [indexPath])
+            let removOperation = RemoveImageNoteOperation(note: gallery.imageNotes[indexPath.item], gallery: gallery, backendQueue: OperationQueue(), dbQueue: OperationQueue())
+            removOperation.completionBlock = {
+                OperationQueue.main.addOperation {
+                    self.collectionView.deleteItems(at: [indexPath])
+                }
+            }
+            OperationQueue().addOperation(removOperation)
         }
     }
 }

@@ -14,10 +14,7 @@ struct ImageNote {
     let uid: String
     let imagePath: String
     
-    init?(uid: String = UUID().uuidString, imagePath: String) {
-        guard UIImage(contentsOfFile: imagePath) != nil else {
-            return nil
-        }
+    init(uid: String = UUID().uuidString, imagePath: String) {
         self.uid = uid
         self.imagePath = imagePath
     }
@@ -46,16 +43,15 @@ extension ImageNote {
         }
         let note = ImageNote(uid: json[JsonKeys.uid] as! String,
                              imagePath: json[JsonKeys.imagePath] as! String)
-        switch note {
-        case .none:
-            DDLogInfo("Image Note parse failed: image not available")
-        default:
-            DDLogInfo("Image Note parsed: \(note!)")
-        }
+        DDLogInfo("Image Note parsed: \(note)")
         return note
     }
     
     var json: [String: Any] {
         return [JsonKeys.uid: uid, JsonKeys.imagePath: imagePath]
     }
+}
+
+extension ImageNote: Equatable {
+    
 }

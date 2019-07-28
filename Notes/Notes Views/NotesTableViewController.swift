@@ -20,6 +20,14 @@ class NotesTableViewController: UIViewController {
         
         tableView.register(UINib(nibName: "NoteTableViewCell", bundle: nil),
                                 forCellReuseIdentifier: noteCellIdentifier)
+        
+        let loadOperation = LoadNotesOperation(notebook: notesDataSource, backendQueue: OperationQueue(), dbQueue: OperationQueue())
+        loadOperation.completionBlock = {
+            OperationQueue.main.addOperation {
+                self.tableView.reloadData()
+            }
+        }
+        OperationQueue().addOperation(loadOperation)
     }
     
     // Обработчик кнопки Edit
@@ -65,8 +73,13 @@ extension NotesTableViewController: UITableViewDataSource {
 extension NotesTableViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            notesDataSource.remove(with: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .automatic)
+            let removeOperation = RemoveNoteOperation(note: notesDataSource.notes[indexPath.row], notebook: notesDataSource, backendQueue: OperationQueue(), dbQueue: OperationQueue())
+            removeOperation.completionBlock = {
+                OperationQueue.main.addOperation {
+                    self.tableView.deleteRows(at: [indexPath], with: .automatic)
+                }
+            }
+            OperationQueue().addOperation(removeOperation)
         }
     }
     
@@ -79,15 +92,25 @@ extension NotesTableViewController: UITableViewDelegate {
         if let sourceController = unwindSegue.source as? EditNoteViewController, let note = sourceController.note {
             switch notesDataSource.index(of: note) {
             case .none:
-                notesDataSource.add(note)
-                tableView.beginUpdates()
-                tableView.insertRows(at: [IndexPath(row: notesDataSource.notes.count - 1, section: 0)], with: .automatic)
-                tableView.endUpdates()
+                let saveOperation = SaveNoteOperation(note: note, notebook: notesDataSource, backendQueue: OperationQueue(), dbQueue: OperationQueue())
+                saveOperation.completionBlock = {
+                    OperationQueue.main.addOperation {
+                        self.tableView.beginUpdates()
+                        self.tableView.insertRows(at: [IndexPath(row: self.notesDataSource.notes.count - 1, section: 0)], with: .automatic)
+                        self.tableView.endUpdates()
+                    }
+                }
+                OperationQueue().addOperation(saveOperation)
             case let index?:
-                notesDataSource.add(note)
-                tableView.beginUpdates()
-                tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
-                tableView.endUpdates()
+                let saveOperation = SaveNoteOperation(note: note, notebook: notesDataSource, backendQueue: OperationQueue(), dbQueue: OperationQueue())
+                saveOperation.completionBlock = {
+                    OperationQueue.main.addOperation {
+                        self.tableView.beginUpdates()
+                        self.tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+                        self.tableView.endUpdates()
+                    }
+                }
+                OperationQueue().addOperation(saveOperation)
             }
         }
     }

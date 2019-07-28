@@ -23,7 +23,7 @@
                         <rect key="frame" x="8" y="8" width="199" height="174"/>
                     </imageView>
                     <visualEffectView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="obk-Ub-urp">
-                        <rect key="frame" x="8" y="8" width="30" height="30"/>
+                        <rect key="frame" x="4" y="4" width="30" height="30"/>
                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="zV4-rK-jkc">
                             <rect key="frame" x="0.0" y="0.0" width="30" height="30"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -55,8 +55,8 @@
             <constraints>
                 <constraint firstItem="UKm-G4-uUE" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="8" id="1oC-4x-fkW"/>
                 <constraint firstItem="UKm-G4-uUE" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="8" id="5oy-uB-Tls"/>
-                <constraint firstItem="obk-Ub-urp" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="8" id="T60-Vo-2cE"/>
-                <constraint firstItem="obk-Ub-urp" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="8" id="fPP-xL-7y6"/>
+                <constraint firstItem="obk-Ub-urp" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="4" id="T60-Vo-2cE"/>
+                <constraint firstItem="obk-Ub-urp" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="4" id="fPP-xL-7y6"/>
                 <constraint firstAttribute="bottom" secondItem="UKm-G4-uUE" secondAttribute="bottom" constant="8" id="hAz-d8-Uib"/>
                 <constraint firstAttribute="trailing" secondItem="UKm-G4-uUE" secondAttribute="trailing" constant="8" id="nUU-qj-FRZ"/>
             </constraints>

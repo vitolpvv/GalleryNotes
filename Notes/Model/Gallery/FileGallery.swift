@@ -19,20 +19,17 @@ class FileGallery {
     
     public private(set) var imageNotes = [ImageNote]()
     
-    init() {
-        load()
-    }
-    
-    deinit {
-        save()
-    }
-    
     public func add(_ imageNote: ImageNote) {
-        switch index(of: imageNote) {
+        var note = imageNote
+        if let url = fileUrl(note.uid), let data = note.image()?.jpegData(compressionQuality: 1) ?? note.image()?.pngData() {
+            do {try data.write(to: url)} catch {print("Error ")}
+            note = ImageNote(uid: note.uid, imagePath: url.path)
+        }
+        switch index(of: note) {
         case let index?:
-            imageNotes[index] = imageNote
+            imageNotes[index] = note
         default:
-            imageNotes.append(imageNote)
+            imageNotes.append(note)
         }
         save()
     }
@@ -42,22 +39,31 @@ class FileGallery {
     }
     
     public func remove(with uid: String) {
+        try? FileManager.default.removeItem(at: fileUrl(uid)!)
         imageNotes.removeAll {note in note.uid == uid}
         save()
     }
     
     public func remove(with index: Int) {
+        try? FileManager.default.removeItem(at: fileUrl(imageNotes[index].uid)!)
         imageNotes.remove(at: index)
         save()
     }
     
-    private let fileUrl = {() -> URL? in
-        return FileManager.default.urls(for: .documentDirectory,
-                                        in: .userDomainMask).first?.appendingPathComponent(Str.fileName)
+    public func remove(_ note: ImageNote) {
+        guard let index = index(of: note) else {
+            return
+        }
+        remove(with: index)
     }
     
-    private func load() {
-        guard let file = fileUrl() else {
+    private let fileUrl = {(fileName: String) -> URL? in
+        return FileManager.default.urls(for: .documentDirectory,
+                                        in: .userDomainMask).first?.appendingPathComponent(fileName)
+    }
+    
+    public func load() {
+        guard let file = fileUrl(Str.fileName) else {
             DDLogError("ImageNotes load: File do not accessible.")
             return
         }
@@ -88,7 +94,7 @@ class FileGallery {
             DDLogError("ImageNotes save: Data serialization error.")
             return
         }
-        guard let file = fileUrl(), (FileManager.default.fileExists(atPath: file.path) || FileManager.default.createFile(atPath: file.path, contents: nil, attributes: nil)) else {
+        guard let file = fileUrl(Str.fileName), (FileManager.default.fileExists(atPath: file.path) || FileManager.default.createFile(atPath: file.path, contents: nil, attributes: nil)) else {
             DDLogError("ImageNotes save: File do not accessilbe.")
             return
         }

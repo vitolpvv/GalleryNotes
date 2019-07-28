@@ -37,9 +37,9 @@
                                 <action selector="editButtonTapped" destination="bv8-eu-5ou" id="iPi-rO-T16"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="Gxa-Hs-LbM">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="wsF-Of-p4x">
                             <connections>
-                                <action selector="addButtonTapped:" destination="bv8-eu-5ou" id="L7T-XT-Ych"/>
+                                <action selector="addPhotoTapped:" destination="bv8-eu-5ou" id="nWY-B3-k2o"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>

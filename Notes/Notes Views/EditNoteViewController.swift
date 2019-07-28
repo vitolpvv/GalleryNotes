@@ -70,6 +70,11 @@ class EditNoteViewController: UIViewController {
         hideKeyboardWhenTappedAround()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        titleTextField.becomeFirstResponder()
+    }
+    
     
     // Выполняется перед отображением представления
     private func setFields() {
