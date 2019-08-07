@@ -19,10 +19,10 @@ struct TokenRequest: Codable {
 
 struct Gist: Codable {
     let id: String?
-    let description: String
+    let description: String?
     let files: [String: GistFile]
 }
 
 struct GistFile: Codable {
-    let content: String
+    let content: String?
 }

@@ -73,11 +73,11 @@ extension NotesTableViewController: UITableViewDataSource {
 extension NotesTableViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
+            OperationQueue.main.addOperation {
+                self.tableView.deleteRows(at: [indexPath], with: .automatic)
+            }
             let removeOperation = RemoveNoteOperation(note: notesDataSource.notes[indexPath.row], notebook: notesDataSource, backendQueue: OperationQueue(), dbQueue: OperationQueue())
             removeOperation.completionBlock = {
-                OperationQueue.main.addOperation {
-                    self.tableView.deleteRows(at: [indexPath], with: .automatic)
-                }
             }
             OperationQueue().addOperation(removeOperation)
         }

@@ -18,13 +18,57 @@ class SaveNotesBackendOperation: BaseBackendOperation {
             finish()
             return
         }
-        guard var url = URL(string: baseUrlStr) else {
+        guard let url = URL(string: baseUrlStr) else {
             result = .failure(.unreachable)
             finish()
             return
         }
+        executeCheckGistTask(url, token)
+    }
+    
+    // Проверка наличия гиста и файла на гитхабе и запускает запись.
+    private func executeCheckGistTask(_ url: URL, _ token: String) {
+        var request = URLRequest(url: url)
+        request.addValue("token \(token)", forHTTPHeaderField: "Authorization")
+        URLSession.shared.dataTask(with: request) { [weak self] (data, response, error) in
+            guard error == nil else {
+                self?.result = .failure(.unreachable)
+                self?.finish()
+                return
+            }
+            guard let response = response as? HTTPURLResponse else {
+                self?.result = .failure(.unreachable)
+                self?.finish()
+                return
+            }
+            guard (200..<300).contains(response.statusCode) else {
+                self?.result = .failure(.unreachable)
+                self?.finish()
+                return
+            }
+            guard let data = data else {
+                self?.result = .failure(.unreachable)
+                self?.finish()
+                return
+            }
+            guard let gists = try? JSONDecoder().decode([Gist].self, from: data) else {
+                self?.result = .failure(.unreachable)
+                self?.finish()
+                return
+            }
+            guard let this = self else {
+                self?.result = .failure(.unreachable)
+                self?.finish()
+                return
+            }
+            this.executeSaveTask(url, token, gists.filter { gist in gist.files.keys.contains(this.fileName)}.first?.id)
+            }.resume()
+    }
+    
+    // Запись данных в гист. Если есть ид, обновляет. Иначе, создает.
+    private func executeSaveTask(_ url: URL, _ token: String, _ gistId: String?) {
         var items = [[String: Any]]()
-        notesProvider.notes.forEach { note in
+            notesProvider.notes.forEach { note in
             items.append(note.json)
         }
         guard let jsonNotes = try? JSONSerialization.data(withJSONObject: items, options: []) else {
@@ -44,10 +88,9 @@ class SaveNotesBackendOperation: BaseBackendOperation {
             return
         }
         var request: URLRequest
-        // Если в базе есть ид гиста, обновляет гист. Иначе создает гист.
-        if let gistId = UserDefaults().string(forKey: "gist_id") {
-            url = url.appendingPathComponent(gistId)
-            request = URLRequest(url: url)
+        // Если есть ид гиста, обновляет гист. Иначе, создает гист.
+        if let gistId = gistId {
+            request = URLRequest(url: url.appendingPathComponent(gistId))
             request.httpMethod = "PATCH"
         } else {
             request = URLRequest(url: url)
@@ -76,17 +119,13 @@ class SaveNotesBackendOperation: BaseBackendOperation {
                 self?.finish()
                 return
             }
-            guard let gist = try? JSONDecoder().decode(Gist.self, from: data) else {
+            guard let _ = try? JSONDecoder().decode(Gist.self, from: data) else {
                 self?.result = .failure(.unreachable)
                 self?.finish()
                 return
             }
-            // Если гист создан, сохраняет ид в базу
-            if response.statusCode == 201 {
-                UserDefaults().setValue(gist.id, forKey: "gist_id")
-            }
             self?.result = .success(Void())
             self?.finish()
-        }.resume()
+            }.resume()
     }
 }
