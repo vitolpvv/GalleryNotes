@@ -11,7 +11,7 @@ import UIKit
 // Таблица заметок
 class NotesTableViewController: UIViewController {
     private let noteCellIdentifier = "NoteCell"
-    private var notesDataSource = FileNotebook()
+    private let notesDataSource = FileNotebook()
     
     @IBOutlet var tableView: UITableView!
     

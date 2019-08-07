@@ -18,6 +18,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         DDLog.add(DDTTYLogger.sharedInstance)
+        
+        // Раскоментировать, чтобы удалить токен из базы и запустить процесс авторизации
+        //UserDefaults().setValue(nil, forKey: "token")
+        
+        window = UIWindow()
+        // Если токена нет в базе, запускает процесс аторизации. Иначе переходит на основной экран приложения
+        switch UserDefaults().string(forKey: "token") {
+        case .none: window?.rootViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "LoginViewController")
+        default:
+            window?.rootViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "MainViewController")
+        }
         return true
     }
 

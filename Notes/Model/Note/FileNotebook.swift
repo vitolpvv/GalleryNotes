@@ -129,7 +129,6 @@ public class FileNotebook {
             switch Note.parse(json: item) {
             case let note?: notes.append(note)
             default: break
-                
             }
         }
     }
