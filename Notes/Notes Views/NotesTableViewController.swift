@@ -12,7 +12,7 @@ import CoreData
 // Таблица заметок
 class NotesTableViewController: UIViewController {
     private let noteCellIdentifier = "NoteCell"
-    private let notesDataSource = FileNotebook()
+    private let notesDataSource = DBNotebook()
     private let activityView = UIActivityIndicatorView(style: .gray)
     private var activityBarButton: UIBarButtonItem?
     
@@ -33,7 +33,10 @@ class NotesTableViewController: UIViewController {
         activityView.startAnimating()
         navigationItem.rightBarButtonItems?.append(activityBarButton!)
         
-        let loadOperation = LoadNotesOperation(notebook: notesDataSource, backendQueue: OperationQueue(), dbQueue: OperationQueue())
+        let loadOperation = LoadNotesOperation(notebook: notesDataSource,
+                                               backendQueue: OperationQueue(),
+                                               dbQueue: OperationQueue(),
+                                               context: persistentContainer.newBackgroundContext())
         loadOperation.completionBlock = {
             OperationQueue.main.addOperation {
                 self.tableView.reloadData()
@@ -89,19 +92,20 @@ extension NotesTableViewController: UITableViewDataSource {
 extension NotesTableViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            OperationQueue.main.addOperation {
-                self.tableView.beginUpdates()
-                self.tableView.deleteRows(at: [indexPath], with: .automatic)
-                self.tableView.endUpdates()
-            }
-            
             navigationItem.rightBarButtonItems?.append(activityBarButton!)
-            let removeOperation = RemoveNoteOperation(note: notesDataSource.notes[indexPath.row], notebook: notesDataSource, backendQueue: OperationQueue(), dbQueue: OperationQueue())
+            let removeOperation = RemoveNoteOperation(note: notesDataSource.notes[indexPath.row],
+                                                      notebook: notesDataSource,
+                                                      backendQueue: OperationQueue(),
+                                                      dbQueue: OperationQueue(),
+                                                      context: persistentContainer.newBackgroundContext())
             removeOperation.completionBlock = {
                 OperationQueue.main.addOperation {
                     self.navigationItem.rightBarButtonItems?.removeAll { item in
                         self.activityBarButton!.isEqual(item)
                     }
+                    self.tableView.beginUpdates()
+                    self.tableView.deleteRows(at: [indexPath], with: .automatic)
+                    self.tableView.endUpdates()
                 }
             }
             OperationQueue().addOperation(removeOperation)
@@ -116,9 +120,13 @@ extension NotesTableViewController: UITableViewDelegate {
     @IBAction func unwindToNotesView(_ unwindSegue: UIStoryboardSegue) {
         if let sourceController = unwindSegue.source as? EditNoteViewController, let note = sourceController.note {
             navigationItem.rightBarButtonItems?.append(activityBarButton!)
-            switch notesDataSource.index(of: note) {
+            switch notesDataSource.indexOf(note) {
             case .none:
-                let saveOperation = SaveNoteOperation(note: note, notebook: notesDataSource, backendQueue: OperationQueue(), dbQueue: OperationQueue())
+                let saveOperation = SaveNoteOperation(note: note,
+                                                      notebook: notesDataSource,
+                                                      backendQueue: OperationQueue(),
+                                                      dbQueue: OperationQueue(),
+                                                      context: persistentContainer.newBackgroundContext())
                 saveOperation.completionBlock = {
                     OperationQueue.main.addOperation {
                         self.tableView.beginUpdates()
@@ -131,7 +139,11 @@ extension NotesTableViewController: UITableViewDelegate {
                 }
                 OperationQueue().addOperation(saveOperation)
             case let index?:
-                let saveOperation = SaveNoteOperation(note: note, notebook: notesDataSource, backendQueue: OperationQueue(), dbQueue: OperationQueue())
+                let saveOperation = SaveNoteOperation(note: note,
+                                                      notebook: notesDataSource,
+                                                      backendQueue: OperationQueue(),
+                                                      dbQueue: OperationQueue(),
+                                                      context: persistentContainer.newBackgroundContext())
                 saveOperation.completionBlock = {
                     OperationQueue.main.addOperation {
                         self.tableView.beginUpdates()

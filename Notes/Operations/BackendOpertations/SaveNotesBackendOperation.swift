@@ -11,13 +11,13 @@ class SaveNotesBackendOperation: BaseBackendOperation {
     }
     
     override func main() {
-        DDLogInfo("SaveNotesBackendOperation execution")
         
         guard let token = UserDefaults().string(forKey: "token") else {
             result = .failure(.unreachable)
             finish()
             return
         }
+        DDLogInfo("SaveNotesBackendOperation execution")
         guard let url = URL(string: baseUrlStr) else {
             result = .failure(.unreachable)
             finish()

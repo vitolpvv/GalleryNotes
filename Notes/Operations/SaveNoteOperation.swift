@@ -1,22 +1,23 @@
-import Foundation
+import UIKit
+import CoreData
 import CocoaLumberjack
 
 class SaveNoteOperation: AsyncOperation {
     private let note: Note
-    private let notebook: FileNotebook
+    private let notebook: DBNotebook
     private let saveToDb: SaveNoteDBOperation
     private var saveToBackend: SaveNotesBackendOperation
     
     private(set) var result: Bool? = false
     
     init(note: Note,
-         notebook: FileNotebook,
+         notebook: DBNotebook,
          backendQueue: OperationQueue,
-         dbQueue: OperationQueue) {
+         dbQueue: OperationQueue, context: NSManagedObjectContext) {
         self.note = note
         self.notebook = notebook
         
-        saveToDb = SaveNoteDBOperation(note: note, notebook: notebook)
+        saveToDb = SaveNoteDBOperation(note: note, notebook: notebook, context: context)
         saveToBackend = SaveNotesBackendOperation(notesProvider: saveToDb)
         
         super.init()

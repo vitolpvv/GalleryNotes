@@ -1,18 +1,19 @@
-import Foundation
+import UIKit
+import CoreData
 import CocoaLumberjack
 
 class RemoveNoteDBOperation: BaseDBOperation {    
     private let note: Note
     
     init(note: Note,
-         notebook: FileNotebook) {
+         notebook: DBNotebook, context: NSManagedObjectContext) {
         self.note = note
-        super.init(notebook: notebook)
+        super.init(notebook: notebook, context: context)
     }
     
     override func main() {
         DDLogInfo("RemoveNoteDBOperation execution")
-        notebook.remove(note)
+        notebook.remove(note, on: context)
         finish()
     }
 }

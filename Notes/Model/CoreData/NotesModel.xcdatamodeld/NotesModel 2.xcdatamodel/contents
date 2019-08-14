@@ -11,12 +11,13 @@
         <attribute name="content" attributeType="String" syncable="YES"/>
         <attribute name="destroyDate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="importance" attributeType="String" syncable="YES"/>
+        <attribute name="tip" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="title" attributeType="String" syncable="YES"/>
         <attribute name="uid" attributeType="String" syncable="YES"/>
         <relationship name="color" maxCount="1" deletionRule="Cascade" destinationEntity="ColorEntity" inverseName="note" inverseEntity="ColorEntity" syncable="YES"/>
     </entity>
     <elements>
         <element name="ColorEntity" positionX="-54" positionY="18" width="128" height="120"/>
-        <element name="NoteEntity" positionX="-63" positionY="-18" width="128" height="135"/>
+        <element name="NoteEntity" positionX="-63" positionY="-18" width="128" height="150"/>
     </elements>
 </model>

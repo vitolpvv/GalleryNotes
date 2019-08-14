@@ -5,12 +5,12 @@ class LoadNotesBackendOperation: BaseBackendOperation {
     var result: Result<[Note], NetworkError>?
     
     override func main() {
-        DDLogInfo("LoadNotesBackendOperations execution")
         guard let token = UserDefaults().string(forKey: "token") else {
             result = .failure(.unreachable)
             finish()
             return
         }
+        DDLogInfo("LoadNotesBackendOperations execution")
         guard let url = URL(string: baseUrlStr) else {
             result = .failure(.unreachable)
             finish()

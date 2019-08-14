@@ -1,19 +1,20 @@
-import Foundation
+import UIKit
+import CoreData
 import CocoaLumberjack
 
 class LoadNotesOperation: AsyncOperation {
-    private let notebook: FileNotebook
+    private let notebook: DBNotebook
     private let loadFromDb: LoadNotesDBOperation
     private var loadFromBackend: LoadNotesBackendOperation
     
     private(set) var result: Bool? = false
     
-    init(notebook: FileNotebook,
+    init(notebook: DBNotebook,
          backendQueue: OperationQueue,
-         dbQueue: OperationQueue) {
+         dbQueue: OperationQueue, context: NSManagedObjectContext) {
         self.notebook = notebook
         
-        loadFromDb = LoadNotesDBOperation(notebook: notebook)
+        loadFromDb = LoadNotesDBOperation(notebook: notebook, context: context)
         loadFromBackend = LoadNotesBackendOperation()
         super.init()
         
@@ -24,10 +25,10 @@ class LoadNotesOperation: AsyncOperation {
             case .success(let notes):
                 if notebook.notes != notes {
                     while notebook.notes.count > 0 {
-                        notebook.remove(with: 0)
+                        notebook.remove(at: 0, on: context)
                     }
                     notes.forEach { note in
-                        notebook.add(note)
+                        notebook.add(note, on: context)
                     }
                 }
             default: return

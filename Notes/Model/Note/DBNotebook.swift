@@ -32,24 +32,37 @@ class DBNotebook {
         guard let index = indexOf(note) else {
             return
         }
-        notes.remove(at: index)
         if let noteEntry = fetchBy(uid: note.uid, on: context) {
             context.delete(noteEntry)
+            notes.remove(at: index)
             save(on: context)
         }
     }
     
-    private func indexOf(_ note: Note) -> Int? {
+    public func remove(at index: Int, on context: NSManagedObjectContext) {
+        guard notes.count > index, index >= 0 else {
+            return
+        }
+        if let noteEntry = fetchBy(uid: notes[index].uid, on: context) {
+            context.delete(noteEntry)
+            notes.remove(at: index)
+            save(on: context)
+        }
+    }
+    
+    public func indexOf(_ note: Note) -> Int? {
         return notes.firstIndex { $0.uid == note.uid }
     }
     
     private func save(on context: NSManagedObjectContext) {
         if context.hasChanges {
-            do {
-                try context.save()
-            } catch {
-                let nserror = error as NSError
-                DDLogError("Unresolved error \(nserror), \(nserror.userInfo)")
+            context.performAndWait {                
+                do {
+                    try context.save()
+                } catch {
+                    let nserror = error as NSError
+                    DDLogError("Unresolved error \(nserror), \(nserror.userInfo)")
+                }
             }
         }
     }
@@ -59,14 +72,14 @@ class DBNotebook {
             return
         }
         notes = noteEntities.map { entity in
-            return Note(uid: entity.uid,
-                        title: entity.title,
-                        content: entity.content,
-                        color: UIColor(red: CGFloat(entity.color.red),
-                                       green: CGFloat(entity.color.green),
-                                       blue: CGFloat(entity.color.blue),
-                                       alpha: CGFloat(entity.color.alpha)),
-                        importance: Note.Importance(rawValue: entity.importance)!,
+            return Note(uid: entity.uid!,
+                        title: entity.title!,
+                        content: entity.content!,
+                        color: UIColor(red: CGFloat(entity.color!.red),
+                                       green: CGFloat(entity.color!.green),
+                                       blue: CGFloat(entity.color!.blue),
+                                       alpha: CGFloat(entity.color!.alpha)),
+                        importance: Note.Importance(rawValue: entity.importance!)!,
                         destroyDate: entity.destroyDate)
         }
     }
@@ -96,9 +109,9 @@ class DBNotebook {
         var b: CGFloat = 0
         var a: CGFloat = 0
         note.color.getRed(&r, green: &g, blue: &b, alpha: &a)
-        entity.color.red = Double(r)
-        entity.color.green = Double(g)
-        entity.color.blue = Double(b)
-        entity.color.alpha = Double(a)
+        entity.color!.red = Double(r)
+        entity.color!.green = Double(g)
+        entity.color!.blue = Double(b)
+        entity.color!.alpha = Double(a)
     }
 }

@@ -5,7 +5,7 @@ class LoadNotesDBOperation: BaseDBOperation {
     
     override func main() {
         DDLogInfo("LoadNotesDBOperation execution")
-        notebook.load()
+        notebook.load(on: context)
         finish()
     }
 }
