@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 
 // Контроллер авторизации и генерации токена.
@@ -21,6 +22,8 @@ class LoginViewController: UIViewController {
     @IBOutlet weak var firstStepView: UIView!
     @IBOutlet weak var activityView: UIView!
     @IBOutlet weak var secondStepView: UIView!
+    
+    var persistentContainer: NSPersistentContainer!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -110,6 +113,9 @@ class LoginViewController: UIViewController {
         }.resume()
     }
     
+    @IBAction func offlineDidTapped(_ sender: Any) {
+        showMainView()
+    }
     // Показывает процесс обработки запроса
     private func processing(_ start: Bool) {
         DispatchQueue.main.async { [weak self] in
@@ -143,6 +149,15 @@ class LoginViewController: UIViewController {
                 self?.otpTextField.text = nil
                 self?.otpTextField.becomeFirstResponder()
             }
+        }
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "MainViewSegue" {
+            let tbc = segue.destination as? UITabBarController
+            let nc = tbc?.viewControllers?.first as? UINavigationController
+            let vc = nc?.topViewController as? NotesTableViewController
+            vc?.persistentContainer = persistentContainer
         }
     }
 }

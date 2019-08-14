@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14492.1" systemVersion="18G87" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="ColorEntity" representedClassName="ColorEntity" syncable="YES">
+        <attribute name="alpha" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="blue" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="green" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="red" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <relationship name="note" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="NoteEntity" inverseName="color" inverseEntity="NoteEntity" syncable="YES"/>
+    </entity>
+    <entity name="NoteEntity" representedClassName="NoteEntity" syncable="YES">
+        <attribute name="content" attributeType="String" syncable="YES"/>
+        <attribute name="destroyDate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="importance" attributeType="String" syncable="YES"/>
+        <attribute name="title" attributeType="String" syncable="YES"/>
+        <attribute name="uid" attributeType="String" syncable="YES"/>
+        <relationship name="color" maxCount="1" deletionRule="Cascade" destinationEntity="ColorEntity" inverseName="note" inverseEntity="ColorEntity" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="ColorEntity" positionX="-54" positionY="18" width="128" height="120"/>
+        <element name="NoteEntity" positionX="-63" positionY="-18" width="128" height="135"/>
+    </elements>
+</model>

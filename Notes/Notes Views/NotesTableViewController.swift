@@ -7,24 +7,39 @@
 //
 
 import UIKit
+import CoreData
 
 // Таблица заметок
 class NotesTableViewController: UIViewController {
     private let noteCellIdentifier = "NoteCell"
     private let notesDataSource = FileNotebook()
+    private let activityView = UIActivityIndicatorView(style: .gray)
+    private var activityBarButton: UIBarButtonItem?
     
     @IBOutlet var tableView: UITableView!
+    
+    var persistentContainer: NSPersistentContainer!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        guard persistentContainer != nil else {
+            fatalError("This view needs a persistent container")
+        }
+        
         tableView.register(UINib(nibName: "NoteTableViewCell", bundle: nil),
                                 forCellReuseIdentifier: noteCellIdentifier)
+        activityBarButton = UIBarButtonItem(customView: activityView)
+        activityView.startAnimating()
+        navigationItem.rightBarButtonItems?.append(activityBarButton!)
         
         let loadOperation = LoadNotesOperation(notebook: notesDataSource, backendQueue: OperationQueue(), dbQueue: OperationQueue())
         loadOperation.completionBlock = {
             OperationQueue.main.addOperation {
                 self.tableView.reloadData()
+                self.navigationItem.rightBarButtonItems?.removeAll { item in
+                    self.activityBarButton!.isEqual(item)
+                }
             }
         }
         OperationQueue().addOperation(loadOperation)
@@ -62,8 +77,9 @@ extension NotesTableViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: noteCellIdentifier,
                                                       for: indexPath) as! NoteTableViewCell
-        
-        cell.note = notesDataSource.notes[indexPath.row]
+        if indexPath.row < notesDataSource.notes.count {
+            cell.note = notesDataSource.notes[indexPath.row]
+        }
         
         return cell
     }
@@ -74,10 +90,19 @@ extension NotesTableViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             OperationQueue.main.addOperation {
+                self.tableView.beginUpdates()
                 self.tableView.deleteRows(at: [indexPath], with: .automatic)
+                self.tableView.endUpdates()
             }
+            
+            navigationItem.rightBarButtonItems?.append(activityBarButton!)
             let removeOperation = RemoveNoteOperation(note: notesDataSource.notes[indexPath.row], notebook: notesDataSource, backendQueue: OperationQueue(), dbQueue: OperationQueue())
             removeOperation.completionBlock = {
+                OperationQueue.main.addOperation {
+                    self.navigationItem.rightBarButtonItems?.removeAll { item in
+                        self.activityBarButton!.isEqual(item)
+                    }
+                }
             }
             OperationQueue().addOperation(removeOperation)
         }
@@ -90,6 +115,7 @@ extension NotesTableViewController: UITableViewDelegate {
     
     @IBAction func unwindToNotesView(_ unwindSegue: UIStoryboardSegue) {
         if let sourceController = unwindSegue.source as? EditNoteViewController, let note = sourceController.note {
+            navigationItem.rightBarButtonItems?.append(activityBarButton!)
             switch notesDataSource.index(of: note) {
             case .none:
                 let saveOperation = SaveNoteOperation(note: note, notebook: notesDataSource, backendQueue: OperationQueue(), dbQueue: OperationQueue())
@@ -98,6 +124,9 @@ extension NotesTableViewController: UITableViewDelegate {
                         self.tableView.beginUpdates()
                         self.tableView.insertRows(at: [IndexPath(row: self.notesDataSource.notes.count - 1, section: 0)], with: .automatic)
                         self.tableView.endUpdates()
+                        self.navigationItem.rightBarButtonItems?.removeAll { item in
+                            self.activityBarButton!.isEqual(item)
+                        }
                     }
                 }
                 OperationQueue().addOperation(saveOperation)
@@ -108,6 +137,9 @@ extension NotesTableViewController: UITableViewDelegate {
                         self.tableView.beginUpdates()
                         self.tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
                         self.tableView.endUpdates()
+                        self.navigationItem.rightBarButtonItems?.removeAll { item in
+                            self.activityBarButton!.isEqual(item)
+                        }
                     }
                 }
                 OperationQueue().addOperation(saveOperation)

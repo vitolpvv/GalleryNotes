@@ -72,7 +72,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cfp-n2-cKA">
-                                <rect key="frame" x="32" y="76" width="350" height="216"/>
+                                <rect key="frame" x="32" y="76" width="350" height="278"/>
                                 <subviews>
                                     <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter login" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="frx-P8-OXx">
                                         <rect key="frame" x="0.0" y="0.0" width="350" height="30"/>
@@ -99,6 +99,13 @@
                                             <action selector="generateTokenDidTapped:" destination="6Z5-GF-ITU" eventType="touchUpInside" id="Mns-vm-Ymm"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ohu-M5-bLf">
+                                        <rect key="frame" x="152" y="248" width="46" height="30"/>
+                                        <state key="normal" title="Offline"/>
+                                        <connections>
+                                            <action selector="offlineDidTapped:" destination="6Z5-GF-ITU" eventType="touchUpInside" id="Xhr-XL-bN2"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
@@ -106,13 +113,15 @@
                                     <constraint firstItem="dWA-ib-EKc" firstAttribute="top" secondItem="eHP-dX-SCj" secondAttribute="bottom" constant="32" id="4Mq-oW-KB0"/>
                                     <constraint firstItem="frx-P8-OXx" firstAttribute="top" secondItem="cfp-n2-cKA" secondAttribute="top" id="4um-HL-sbf"/>
                                     <constraint firstAttribute="trailing" secondItem="frx-P8-OXx" secondAttribute="trailing" id="7wy-QA-MR5"/>
+                                    <constraint firstItem="ohu-M5-bLf" firstAttribute="centerX" secondItem="cfp-n2-cKA" secondAttribute="centerX" id="7zM-UT-wPY"/>
                                     <constraint firstItem="eHP-dX-SCj" firstAttribute="leading" secondItem="cfp-n2-cKA" secondAttribute="leading" id="Dtz-DO-sOu"/>
                                     <constraint firstItem="frx-P8-OXx" firstAttribute="leading" secondItem="cfp-n2-cKA" secondAttribute="leading" id="FJT-p6-VTj"/>
-                                    <constraint firstAttribute="bottom" secondItem="dWA-ib-EKc" secondAttribute="bottom" id="NaT-e6-sq2"/>
+                                    <constraint firstItem="ohu-M5-bLf" firstAttribute="top" secondItem="dWA-ib-EKc" secondAttribute="bottom" constant="32" id="Gm9-iD-qef"/>
                                     <constraint firstItem="fDQ-2s-Jqt" firstAttribute="leading" secondItem="cfp-n2-cKA" secondAttribute="leading" id="O7q-bF-iw1"/>
                                     <constraint firstAttribute="trailing" secondItem="eHP-dX-SCj" secondAttribute="trailing" id="QUH-0O-li3"/>
                                     <constraint firstAttribute="trailing" secondItem="dWA-ib-EKc" secondAttribute="trailing" id="eCG-L0-5MF"/>
                                     <constraint firstItem="fDQ-2s-Jqt" firstAttribute="top" secondItem="frx-P8-OXx" secondAttribute="bottom" constant="32" id="p4l-cz-CHX"/>
+                                    <constraint firstAttribute="bottom" secondItem="ohu-M5-bLf" secondAttribute="bottom" id="pgu-1w-2sP"/>
                                     <constraint firstItem="dWA-ib-EKc" firstAttribute="leading" secondItem="cfp-n2-cKA" secondAttribute="leading" id="rcX-NZ-2GL"/>
                                     <constraint firstAttribute="trailing" secondItem="fDQ-2s-Jqt" secondAttribute="trailing" id="ud8-4o-Vg5"/>
                                 </constraints>
@@ -155,10 +164,10 @@
                                 </constraints>
                             </view>
                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9Ys-RR-8Bo">
-                                <rect key="frame" x="32" y="76" width="350" height="216"/>
+                                <rect key="frame" x="32" y="76" width="350" height="278"/>
                                 <subviews>
                                     <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="Ygd-pD-bbp">
-                                        <rect key="frame" x="165" y="98" width="20" height="20"/>
+                                        <rect key="frame" x="165" y="129" width="20" height="20"/>
                                         <color key="color" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                     </activityIndicatorView>
                                 </subviews>

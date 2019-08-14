@@ -23,7 +23,11 @@ class SaveNotesBackendOperation: BaseBackendOperation {
             finish()
             return
         }
-        executeCheckGistTask(url, token)
+        if let gistId = UserDefaults().string(forKey: "gist_id") {
+            executeSaveTask(url, token, gistId)
+        } else {
+            executeCheckGistTask(url, token)
+        }
     }
     
     // Проверка наличия гиста и файла на гитхабе и запускает запись.
@@ -61,7 +65,8 @@ class SaveNotesBackendOperation: BaseBackendOperation {
                 self?.finish()
                 return
             }
-            this.executeSaveTask(url, token, gists.filter { gist in gist.files.keys.contains(this.fileName)}.first?.id)
+            let gistId = gists.filter { gist in gist.files.keys.contains(this.fileName)}.first?.id
+            this.executeSaveTask(url, token, gistId)
             }.resume()
     }
     
@@ -89,8 +94,9 @@ class SaveNotesBackendOperation: BaseBackendOperation {
         }
         var request: URLRequest
         // Если есть ид гиста, обновляет гист. Иначе, создает гист.
-        if let gistId = gistId {
-            request = URLRequest(url: url.appendingPathComponent(gistId))
+        if gistId != nil {
+            UserDefaults().set(gistId, forKey: "gist_id")
+            request = URLRequest(url: url.appendingPathComponent(gistId!))
             request.httpMethod = "PATCH"
         } else {
             request = URLRequest(url: url)
@@ -110,8 +116,13 @@ class SaveNotesBackendOperation: BaseBackendOperation {
                 return
             }
             guard (200..<300).contains(response.statusCode) else {
-                self?.result = .failure(.unreachable)
-                self?.finish()
+                if response.statusCode == 404 {
+                    UserDefaults().set(nil, forKey: "gist_id")
+                    self?.executeCheckGistTask(url, token)
+                } else {
+                    self?.result = .failure(.unreachable)
+                    self?.finish()
+                }
                 return
             }
             guard let data = data else {
@@ -119,10 +130,13 @@ class SaveNotesBackendOperation: BaseBackendOperation {
                 self?.finish()
                 return
             }
-            guard let _ = try? JSONDecoder().decode(Gist.self, from: data) else {
+            guard let gist = try? JSONDecoder().decode(Gist.self, from: data) else {
                 self?.result = .failure(.unreachable)
                 self?.finish()
                 return
+            }
+            if response.statusCode == 201 {
+                UserDefaults().set(gist.id, forKey: "gist_id")
             }
             self?.result = .success(Void())
             self?.finish()
