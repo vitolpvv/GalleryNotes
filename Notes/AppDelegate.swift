@@ -21,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         DDLog.add(DDTTYLogger.sharedInstance)
         
         // Раскоментировать, чтобы удалить токен из базы и запустить процесс авторизации заново
-        UserDefaults().setValue(nil, forKey: "token")
+        // UserDefaults().setValue(nil, forKey: "token")
         
         window = UIWindow()
         // Если токена нет в базе, запускает процесс аторизации. Иначе переходит на основной экран приложения
@@ -32,10 +32,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             window?.rootViewController = vc
         default:
             let tbc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "MainViewController") as? UITabBarController
-            let nc = tbc?.selectedViewController as? UINavigationController
+            let nc = tbc?.viewControllers?[0] as? UINavigationController
             let vc = nc?.topViewController as? NotesTableViewController
             vc?.persistentContainer = createPersistentContainer()
-            window?.rootViewController = vc
+            window?.rootViewController = tbc
         }
         return true
     }
